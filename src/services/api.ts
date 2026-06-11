@@ -61,6 +61,33 @@ export const expenseService = {
   },
 };
 
+export interface AppCategory {
+  id: string;
+  name: string;
+  icon: string;
+}
+
+export const categoryService = {
+  getAll: async (): Promise<AppCategory[]> => {
+    const { data } = await api.get<AppCategory[]>('/categories');
+    return data;
+  },
+
+  create: async (name: string, icon: string): Promise<AppCategory> => {
+    const { data } = await api.post<AppCategory>('/categories', { name, icon });
+    return data;
+  },
+
+  update: async (id: string, name: string, icon: string): Promise<AppCategory> => {
+    const { data } = await api.put<AppCategory>(`/categories/${id}`, { name, icon });
+    return data;
+  },
+
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/categories/${id}`);
+  },
+};
+
 export const budgetService = {
   getAll: async (): Promise<Budget[]> => {
     const { data } = await api.get<Budget[]>('/budgets');

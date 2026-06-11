@@ -7,7 +7,14 @@ export type AuthStackParamList = {
 
 export type AppStackParamList = {
   Home: undefined;
-  Form: { expense?: Expense } | undefined;
+  Form: { expense?: Expense; defaultType?: 'despesa' | 'receita' } | undefined;
+};
+
+export type TabParamList = {
+  Início:   undefined;
+  Gastos:   undefined;
+  Receitas: undefined;
+  Perfil:   undefined;
 };
 
 export type RootStackParamList = AppStackParamList;

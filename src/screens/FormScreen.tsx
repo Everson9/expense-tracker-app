@@ -13,37 +13,27 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../types/navigation';
-import { Category, TransactionType } from '../types/expense';
+import { TransactionType } from '../types/expense';
 import { expenseService } from '../services/api';
+import { useCategories } from '../contexts/CategoryContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Form'>;
 
-const CATEGORIES: { value: Category; label: string; icon: string }[] = [
-  { value: 'alimentação', label: 'Alimentação', icon: '🍔' },
-  { value: 'transporte',  label: 'Transporte',  icon: '🚗' },
-  { value: 'lazer',       label: 'Lazer',       icon: '🎮' },
-  { value: 'saúde',       label: 'Saúde',       icon: '💊' },
-  { value: 'moradia',     label: 'Moradia',     icon: '🏠' },
-  { value: 'outros',      label: 'Outros',      icon: '📦' },
+const CAT_COLORS = [
+  '#FF9F43','#54A0FF','#A29BFE','#26DE81','#FD9644','#A4B0BD',
+  '#FF6B6B','#00D4A1','#FFC312','#C4E538','#12CBC4','#FDA7DF',
 ];
-
-const CATEGORY_COLORS: Record<Category, string> = {
-  alimentação: '#FF9F43',
-  transporte:  '#54A0FF',
-  lazer:       '#A29BFE',
-  saúde:       '#26DE81',
-  moradia:     '#FD9644',
-  outros:      '#A4B0BD',
-};
 
 export default function FormScreen({ navigation, route }: Props) {
   const editing = route.params?.expense;
+  const defaultType = route.params?.defaultType;
   const todayISO = new Date().toISOString().split('T')[0];
+  const { categories } = useCategories();
 
-  const [type,        setType]        = useState<TransactionType>(editing?.type ?? 'despesa');
+  const [type,        setType]        = useState<TransactionType>(editing?.type ?? defaultType ?? 'despesa');
   const [title,       setTitle]       = useState(editing?.title       ?? '');
   const [amount,      setAmount]      = useState(editing ? String(editing.amount) : '');
-  const [category,    setCategory]    = useState<Category>(editing?.category ?? 'outros');
+  const [category,    setCategory]    = useState<string>(editing?.category ?? '');
   const [date,        setDate]        = useState(editing?.date ?? todayISO);
   const [description, setDescription] = useState(editing?.description ?? '');
   const [recorrente,  setRecorrente]  = useState(editing?.recorrente ?? false);
@@ -53,6 +43,8 @@ export default function FormScreen({ navigation, route }: Props) {
   const isTemplate = !!editing?.recorrente && !editing?.recorrente_id;
   const isParcela  = !!editing?.parcela_grupo_id;
   const numParcelas = parseInt(parcelas, 10) || 1;
+
+  const effectiveCategory = category || (categories[0]?.name ?? 'outros');
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -73,7 +65,7 @@ export default function FormScreen({ navigation, route }: Props) {
         await expenseService.update(editing.id, {
           title: title.trim(),
           amount: parsedAmount,
-          category,
+          category: effectiveCategory as any,
           type,
           recorrente,
           date,
@@ -91,7 +83,7 @@ export default function FormScreen({ navigation, route }: Props) {
             return expenseService.create({
               title: `${title.trim()} (${i + 1}/${numParcelas})`,
               amount: valorParcela,
-              category,
+              category: effectiveCategory as any,
               type,
               recorrente: false,
               parcelas: numParcelas,
@@ -106,7 +98,7 @@ export default function FormScreen({ navigation, route }: Props) {
         await expenseService.create({
           title: title.trim(),
           amount: parsedAmount,
-          category,
+          category: effectiveCategory as any,
           type,
           recorrente,
           date,
@@ -224,22 +216,22 @@ export default function FormScreen({ navigation, route }: Props) {
           <View style={styles.field}>
             <Text style={styles.label}>Categoria *</Text>
             <View style={styles.categoryGrid}>
-              {CATEGORIES.map(cat => {
-                const selected = category === cat.value;
-                const color    = CATEGORY_COLORS[cat.value];
+              {categories.map((cat, idx) => {
+                const selected = effectiveCategory === cat.name;
+                const color    = CAT_COLORS[idx % CAT_COLORS.length];
                 return (
                   <TouchableOpacity
-                    key={cat.value}
+                    key={cat.id}
                     style={[
                       styles.categoryBtn,
                       selected && { borderColor: color, backgroundColor: color + '20' },
                     ]}
-                    onPress={() => setCategory(cat.value)}
+                    onPress={() => setCategory(cat.name)}
                     activeOpacity={0.7}
                   >
                     <Text style={styles.categoryBtnIcon}>{cat.icon}</Text>
                     <Text style={[styles.categoryBtnLabel, selected && { color }]}>
-                      {cat.label}
+                      {cat.name}
                     </Text>
                   </TouchableOpacity>
                 );
