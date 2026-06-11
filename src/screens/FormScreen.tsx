@@ -189,7 +189,7 @@ export default function FormScreen({ navigation, route }: Props) {
             value={title}
             onChangeText={setTitle}
             placeholder={isReceita ? 'Ex: Salário, Freela...' : 'Ex: Almoço no restaurante'}
-            placeholderTextColor="#444"
+            placeholderTextColor={theme.textMuted}
             maxLength={100}
           />
         </View>
@@ -216,7 +216,7 @@ export default function FormScreen({ navigation, route }: Props) {
             value={amount}
             onChangeText={setAmount}
             placeholder="0,00"
-            placeholderTextColor="#444"
+            placeholderTextColor={theme.textMuted}
             keyboardType="decimal-pad"
           />
         </View>
@@ -253,7 +253,7 @@ export default function FormScreen({ navigation, route }: Props) {
             value={date}
             onChangeText={setDate}
             placeholder="2024-11-15"
-            placeholderTextColor="#444"
+            placeholderTextColor={theme.textMuted}
             maxLength={10}
             keyboardType="numbers-and-punctuation"
           />
@@ -313,7 +313,7 @@ export default function FormScreen({ navigation, route }: Props) {
             value={description}
             onChangeText={setDescription}
             placeholder="Opcional..."
-            placeholderTextColor="#444"
+            placeholderTextColor={theme.textMuted}
             multiline
             numberOfLines={3}
             textAlignVertical="top"
@@ -348,212 +348,101 @@ export default function FormScreen({ navigation, route }: Props) {
 
 function makeStyles(th: AppTheme) {
   return StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: th.bg,
-  },
-  scroll: {
-    padding: 20,
-    paddingBottom: 48,
-  },
+    container: { flex: 1, backgroundColor: th.bg },
+    scroll: { padding: 20, paddingBottom: 48 },
 
-  // Type toggle
-  typeToggle: {
-    flexDirection: 'row',
-    backgroundColor: th.card,
-    borderRadius: 12,
-    padding: 4,
-    marginBottom: 24,
-    gap: 4,
-  },
-  typeBtn: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 9,
-    alignItems: 'center',
-  },
-  typeBtnActiveDespesa: {
-    backgroundColor: th.danger + '22',
-    borderWidth: 1,
-    borderColor: th.danger,
-  },
-  typeBtnActiveReceita: {
-    backgroundColor: th.accent + '22',
-    borderWidth: 1,
-    borderColor: th.accent,
-  },
-  typeBtnText: {
-    color: th.textMuted,
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  typeBtnTextActive: {
-    color: th.text,
-  },
+    typeToggle: {
+      flexDirection: 'row',
+      backgroundColor: th.surface,
+      borderRadius: 16,
+      padding: 4,
+      marginBottom: 28,
+      gap: 4,
+      borderWidth: 1,
+      borderColor: th.border,
+    },
+    typeBtn: {
+      flex: 1, paddingVertical: 13, borderRadius: 12, alignItems: 'center',
+    },
+    typeBtnActiveDespesa: {
+      backgroundColor: th.danger + '1A', borderWidth: 1, borderColor: th.danger,
+    },
+    typeBtnActiveReceita: {
+      backgroundColor: th.accent + '1A', borderWidth: 1, borderColor: th.accent,
+    },
+    typeBtnText: { color: th.textMuted, fontSize: 14, fontWeight: '600' },
+    typeBtnTextActive: { color: th.text },
 
-  field: {
-    marginBottom: 22,
-  },
-  label: {
-    color: th.textMuted,
-    fontSize: 11,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: th.card,
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    color: th.text,
-    fontSize: 16,
-    borderWidth: 1,
-    borderColor: '#252525',
-  },
-  textarea: {
-    height: 88,
-    paddingTop: 14,
-  },
+    field: { marginBottom: 20 },
+    label: {
+      color: th.textSub, fontSize: 11, fontWeight: '700',
+      textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8,
+    },
+    input: {
+      backgroundColor: th.surface,
+      borderRadius: 14, paddingHorizontal: 16, paddingVertical: 15,
+      color: th.text, fontSize: 16,
+      borderWidth: 1, borderColor: th.border,
+    },
+    textarea: { height: 88, paddingTop: 14 },
 
-  categoryGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  categoryBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#252525',
-    backgroundColor: th.card,
-    gap: 6,
-  },
-  categoryBtnIcon: {
-    fontSize: 15,
-  },
-  categoryBtnLabel: {
-    color: th.textMuted,
-    fontSize: 13,
-    fontWeight: '500',
-  },
+    categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    categoryBtn: {
+      flexDirection: 'row', alignItems: 'center',
+      paddingHorizontal: 14, paddingVertical: 10,
+      borderRadius: 12, borderWidth: 1, borderColor: th.border,
+      backgroundColor: th.surface, gap: 6,
+    },
+    categoryBtnIcon: { fontSize: 15 },
+    categoryBtnLabel: { color: th.textSub, fontSize: 13, fontWeight: '500' },
 
-  suggestionBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: th.accent + '15',
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: th.accent + '40',
-    marginBottom: 20,
-  },
-  suggestionText: { color: th.accent, fontSize: 13, flex: 1 },
-  suggestionBold: { fontWeight: '700' },
-  suggestionAction: { color: th.accent, fontSize: 13, fontWeight: '700', marginLeft: 8 },
+    suggestionBanner: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      backgroundColor: th.accent + '12', borderRadius: 12,
+      paddingHorizontal: 14, paddingVertical: 12,
+      borderWidth: 1, borderColor: th.accent + '30', marginBottom: 20,
+    },
+    suggestionText: { color: th.accent, fontSize: 13, flex: 1 },
+    suggestionBold: { fontWeight: '700' },
+    suggestionAction: { color: th.accent, fontSize: 13, fontWeight: '700', marginLeft: 8 },
 
-  saveBtn: {
-    backgroundColor: th.danger,
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  saveBtnReceita: {
-    backgroundColor: th.accent,
-  },
-  saveBtnDisabled: {
-    opacity: 0.55,
-  },
-  saveBtnText: {
-    color: th.bg,
-    fontSize: 16,
-    fontWeight: '700',
-    letterSpacing: 0.3,
-  },
+    saveBtn: {
+      backgroundColor: th.danger, borderRadius: 16,
+      paddingVertical: 18, alignItems: 'center', marginTop: 8,
+    },
+    saveBtnReceita: { backgroundColor: th.accent },
+    saveBtnDisabled: { opacity: 0.55 },
+    saveBtnText: { color: th.bg, fontSize: 16, fontWeight: '800', letterSpacing: 0.2 },
 
-  // Parcelas
-  parcelasRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: th.card,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: '#252525',
-    overflow: 'hidden',
-  },
-  parcelasBtn: {
-    width: 48,
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#252525',
-  },
-  parcelasBtnText: {
-    color: th.text,
-    fontSize: 20,
-    fontWeight: '300',
-  },
-  parcelasValue: {
-    flex: 1,
-    color: th.text,
-    fontSize: 15,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
+    parcelasRow: {
+      flexDirection: 'row', alignItems: 'center',
+      backgroundColor: th.surface, borderRadius: 14,
+      borderWidth: 1, borderColor: th.border, overflow: 'hidden',
+    },
+    parcelasBtn: {
+      width: 52, height: 52, justifyContent: 'center', alignItems: 'center',
+      backgroundColor: th.card,
+    },
+    parcelasBtnText: { color: th.text, fontSize: 22, fontWeight: '300' },
+    parcelasValue: {
+      flex: 1, color: th.text, fontSize: 14, fontWeight: '600', textAlign: 'center',
+      fontVariant: ['tabular-nums'],
+    },
 
-  // Recorrente toggle
-  recorrenteRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: th.card,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 22,
-    borderWidth: 1,
-    borderColor: '#252525',
-  },
-  recorrenteRowActive: {
-    borderColor: th.accent,
-    backgroundColor: th.accent + '08',
-  },
-  recorrenteLabel: {
-    color: th.text,
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  recorrenteHint: {
-    color: th.textMuted,
-    fontSize: 12,
-  },
-  toggle: {
-    width: 44,
-    height: 24,
-    borderRadius: 12,
-    backgroundColor: th.border,
-    justifyContent: 'center',
-    paddingHorizontal: 2,
-  },
-  toggleActive: {
-    backgroundColor: th.accent,
-  },
-  toggleThumb: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: th.textMuted,
-  },
-  toggleThumbActive: {
-    backgroundColor: th.bg,
-    alignSelf: 'flex-end',
-  },
+    recorrenteRow: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      backgroundColor: th.surface, borderRadius: 16, padding: 16, marginBottom: 20,
+      borderWidth: 1, borderColor: th.border,
+    },
+    recorrenteRowActive: { borderColor: th.accent, backgroundColor: th.accent + '08' },
+    recorrenteLabel: { color: th.text, fontSize: 15, fontWeight: '600', marginBottom: 2 },
+    recorrenteHint: { color: th.textSub, fontSize: 12 },
+    toggle: {
+      width: 44, height: 24, borderRadius: 12, backgroundColor: th.border,
+      justifyContent: 'center', paddingHorizontal: 2,
+    },
+    toggleActive: { backgroundColor: th.accent },
+    toggleThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: th.textMuted },
+    toggleThumbActive: { backgroundColor: th.bg, alignSelf: 'flex-end' },
   });
 }

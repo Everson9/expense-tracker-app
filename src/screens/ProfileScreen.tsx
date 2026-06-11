@@ -248,7 +248,7 @@ export default function ProfileScreen() {
               value={nameInput}
               onChangeText={setNameInput}
               placeholder="Ex: Academia"
-              placeholderTextColor="#555"
+              placeholderTextColor={theme.textMuted}
               autoFocus
               maxLength={30}
             />
@@ -298,11 +298,11 @@ function makeStyles(th: AppTheme) {
   avatarSection: { alignItems: 'center', paddingVertical: 32 },
   avatar: { width: 72, height: 72, borderRadius: 36, backgroundColor: th.accent, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
   avatarText: { color: th.bg, fontSize: 24, fontWeight: '800' },
-  email: { color: th.textMuted, fontSize: 14 },
+  email: { color: th.textSub, fontSize: 14 },
 
   section: { marginBottom: 24 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 },
-  sectionTitle: { color: th.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8 },
+  sectionTitle: { color: th.textSub, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8 },
   addBtn: { backgroundColor: th.accent + '20', borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6 },
   addBtnText: { color: th.accent, fontSize: 13, fontWeight: '700' },
 
@@ -319,7 +319,7 @@ function makeStyles(th: AppTheme) {
 
   notifRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: th.card, borderRadius: 12, padding: 16, borderWidth: 1, borderColor: th.border },
   notifLabel: { color: th.text, fontSize: 15, fontWeight: '600', marginBottom: 2 },
-  notifHint: { color: th.textMuted, fontSize: 12 },
+  notifHint: { color: th.textSub, fontSize: 12 },
   toggle: { width: 44, height: 24, borderRadius: 12, backgroundColor: th.border, justifyContent: 'center', paddingHorizontal: 2 },
   toggleActive: { backgroundColor: th.accent },
   toggleThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: th.textMuted },
@@ -329,7 +329,7 @@ function makeStyles(th: AppTheme) {
   themeBtn: { alignItems: 'center', borderRadius: 12, padding: 8, borderWidth: 1, borderColor: th.border, backgroundColor: th.card, width: '30%' },
   themeSwatch: { width: 44, height: 44, borderRadius: 22, borderWidth: 2, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
   themeEmoji: { fontSize: 22 },
-  themeName: { color: th.textMuted, fontSize: 11, fontWeight: '600', textAlign: 'center' },
+  themeName: { color: th.textSub, fontSize: 11, fontWeight: '600', textAlign: 'center' },
 
   logoutBtn: { backgroundColor: th.danger + '15', borderRadius: 12, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: th.danger + '30' },
   logoutText: { color: th.danger, fontSize: 16, fontWeight: '600' },
@@ -340,7 +340,7 @@ function makeStyles(th: AppTheme) {
   modalSheet: { backgroundColor: th.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, gap: 12 },
   modalHandle: { width: 40, height: 4, backgroundColor: th.border, borderRadius: 2, alignSelf: 'center', marginBottom: 8 },
   modalTitle: { color: th.text, fontSize: 18, fontWeight: '700' },
-  fieldLabel: { color: th.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8 },
+  fieldLabel: { color: th.textSub, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8 },
   input: { backgroundColor: th.bg, borderRadius: 12, padding: 14, color: th.text, fontSize: 16, borderWidth: 1, borderColor: th.border },
   emojiGrid: { marginVertical: 4 },
   emojiBtn: { flex: 1, aspectRatio: 1, justifyContent: 'center', alignItems: 'center', borderRadius: 8, margin: 2 },
@@ -349,6 +349,6 @@ function makeStyles(th: AppTheme) {
   saveBtn: { backgroundColor: th.accent, borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 4 },
   saveBtnText: { color: th.bg, fontSize: 16, fontWeight: '700' },
   cancelBtn: { padding: 12, alignItems: 'center' },
-  cancelBtnText: { color: th.textMuted, fontSize: 14 },
+  cancelBtnText: { color: th.textSub, fontSize: 14 },
   });
 }

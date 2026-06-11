@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Expense, Category } from '../types/expense';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Expense } from '../types/expense';
 import { useTheme, AppTheme } from '../contexts/ThemeContext';
 
-const CATEGORY_COLORS: Record<Category, string> = {
+const CATEGORY_COLORS: Record<string, string> = {
   alimentação: '#FF9F43',
   transporte:  '#54A0FF',
   lazer:       '#A29BFE',
@@ -12,7 +12,7 @@ const CATEGORY_COLORS: Record<Category, string> = {
   outros:      '#A4B0BD',
 };
 
-const CATEGORY_ICONS: Record<Category, string> = {
+const CATEGORY_ICONS: Record<string, string> = {
   alimentação: '🍔',
   transporte:  '🚗',
   lazer:       '🎮',
@@ -27,165 +27,157 @@ interface Props {
   onDelete: () => void;
 }
 
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+}
+
+function formatBRL(v: number): string {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
+}
+
 export default function ExpenseCard({ expense, onEdit, onDelete }: Props) {
   const { theme } = useTheme();
   const styles = makeStyles(theme);
   const isReceita = expense.type === 'receita';
   const color = isReceita ? theme.accent : (CATEGORY_COLORS[expense.category] ?? '#A4B0BD');
-  const icon  = isReceita ? '💰' : (CATEGORY_ICONS[expense.category] ?? '📦');
-
-  const formattedDate = new Date(expense.date + 'T12:00:00').toLocaleDateString('pt-BR');
-  const formattedAmount = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(Number(expense.amount));
+  const icon = isReceita ? '💰' : (CATEGORY_ICONS[expense.category] ?? '📦');
+  const amount = formatBRL(Number(expense.amount));
 
   return (
-    <View style={styles.card}>
-      <View style={[styles.accent, { backgroundColor: color }]} />
-
-      <View style={[styles.iconWrap, { backgroundColor: color + '22' }]}>
+    <TouchableOpacity style={styles.card} onPress={onEdit} activeOpacity={0.75}>
+      {/* Category icon bubble */}
+      <View style={[styles.iconBubble, { backgroundColor: color + '1A' }]}>
         <Text style={styles.icon}>{icon}</Text>
       </View>
 
+      {/* Content */}
       <View style={styles.content}>
-        <View style={styles.titleRow}>
-          <Text style={styles.title} numberOfLines={1}>{expense.title}</Text>
-          {expense.recorrente && <Text style={styles.recorrenteBadge}>🔁</Text>}
-          {expense.parcela_atual && expense.parcelas && (
-            <View style={styles.parcelaBadge}>
-              <Text style={styles.parcelaBadgeText}>{expense.parcela_atual}/{expense.parcelas}</Text>
-            </View>
-          )}
-        </View>
-        <View style={styles.metaRow}>
-          {isReceita ? (
-            <Text style={[styles.category, { color }]}>receita</Text>
-          ) : (
-            <Text style={[styles.category, { color }]}>{expense.category}</Text>
-          )}
-          <Text style={styles.dot}>·</Text>
-          <Text style={styles.date}>{formattedDate}</Text>
-        </View>
-        {expense.description ? (
-          <Text style={styles.description} numberOfLines={1}>
-            {expense.description}
+        <Text style={styles.title} numberOfLines={1}>{expense.title}</Text>
+        <View style={styles.meta}>
+          <Text style={[styles.categoryLabel, { color }]}>
+            {isReceita ? 'receita' : expense.category}
           </Text>
-        ) : null}
+          <Text style={styles.separator}>·</Text>
+          <Text style={styles.date}>{formatDate(expense.date)}</Text>
+          {expense.recorrente && (
+            <>
+              <Text style={styles.separator}>·</Text>
+              <Text style={styles.badge}>🔁</Text>
+            </>
+          )}
+          {expense.parcela_atual != null && expense.parcelas != null && (
+            <>
+              <Text style={styles.separator}>·</Text>
+              <View style={styles.parcelaBadge}>
+                <Text style={styles.parcelaBadgeText}>{expense.parcela_atual}/{expense.parcelas}</Text>
+              </View>
+            </>
+          )}
+        </View>
       </View>
 
-      <View style={styles.right}>
-        <Text style={[styles.amount, { color: isReceita ? theme.accent : theme.danger }]}>
-          {isReceita ? '+' : '-'}{formattedAmount}
+      {/* Amount */}
+      <View style={styles.amountCol}>
+        <Text style={[
+          styles.amount,
+          { color: isReceita ? theme.accent : theme.danger },
+        ]}>
+          {isReceita ? '+' : '-'}{amount}
         </Text>
-        <View style={styles.actions}>
-          <TouchableOpacity onPress={onEdit} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Text style={styles.actionIcon}>✏️</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Text style={styles.actionIcon}>🗑️</Text>
-          </TouchableOpacity>
-        </View>
+        <TouchableOpacity onPress={onDelete} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} style={styles.deleteBtn}>
+          <Text style={styles.deleteBtnText}>✕</Text>
+        </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
 function makeStyles(th: AppTheme) {
   return StyleSheet.create({
-  card: {
-    flexDirection: 'row',
-    backgroundColor: th.card,
-    borderRadius: 12,
-    marginBottom: 10,
-    alignItems: 'center',
-    overflow: 'hidden',
-    paddingVertical: 12,
-    paddingRight: 14,
-  },
-  accent: {
-    width: 3,
-    alignSelf: 'stretch',
-    marginRight: 12,
-  },
-  iconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  icon: {
-    fontSize: 20,
-  },
-  content: {
-    flex: 1,
-  },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  title: {
-    color: th.text,
-    fontSize: 15,
-    fontWeight: '600',
-    flex: 1,
-  },
-  recorrenteBadge: {
-    fontSize: 12,
-  },
-  parcelaBadge: {
-    backgroundColor: th.border,
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  parcelaBadgeText: {
-    color: th.textMuted,
-    fontSize: 11,
-    fontWeight: '600',
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 3,
-    gap: 4,
-  },
-  category: {
-    fontSize: 12,
-    fontWeight: '500',
-    textTransform: 'capitalize',
-  },
-  dot: {
-    color: '#444',
-    fontSize: 12,
-  },
-  date: {
-    color: th.textMuted,
-    fontSize: 12,
-  },
-  description: {
-    color: th.textMuted,
-    fontSize: 12,
-    marginTop: 3,
-  },
-  right: {
-    alignItems: 'flex-end',
-    marginLeft: 8,
-    gap: 8,
-  },
-  amount: {
-    fontSize: 15,
-    fontWeight: '700',
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  actionIcon: {
-    fontSize: 15,
-  },
+    card: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: th.card,
+      borderRadius: 16,
+      marginBottom: 8,
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      borderWidth: 1,
+      borderColor: th.border,
+      gap: 14,
+    },
+    iconBubble: {
+      width: 46,
+      height: 46,
+      borderRadius: 14,
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexShrink: 0,
+    },
+    icon: {
+      fontSize: 22,
+    },
+    content: {
+      flex: 1,
+      gap: 4,
+    },
+    title: {
+      color: th.text,
+      fontSize: 15,
+      fontWeight: '600',
+      letterSpacing: -0.2,
+    },
+    meta: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: 4,
+    },
+    categoryLabel: {
+      fontSize: 12,
+      fontWeight: '600',
+      textTransform: 'capitalize',
+    },
+    separator: {
+      color: th.textMuted,
+      fontSize: 12,
+    },
+    date: {
+      color: th.textSub,
+      fontSize: 12,
+    },
+    badge: {
+      fontSize: 11,
+    },
+    parcelaBadge: {
+      backgroundColor: th.border,
+      borderRadius: 5,
+      paddingHorizontal: 5,
+      paddingVertical: 1,
+    },
+    parcelaBadgeText: {
+      color: th.textSub,
+      fontSize: 10,
+      fontWeight: '700',
+    },
+    amountCol: {
+      alignItems: 'flex-end',
+      gap: 6,
+      flexShrink: 0,
+    },
+    amount: {
+      fontSize: 16,
+      fontWeight: '700',
+      fontVariant: ['tabular-nums'],
+      letterSpacing: -0.3,
+    },
+    deleteBtn: {
+      opacity: 0.4,
+    },
+    deleteBtnText: {
+      color: th.textSub,
+      fontSize: 12,
+    },
   });
 }

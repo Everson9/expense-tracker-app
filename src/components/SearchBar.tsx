@@ -102,22 +102,22 @@ export default function SearchBar({
 function makeStyles(th: AppTheme) { return StyleSheet.create({
   wrapper: { backgroundColor: th.bg, paddingTop: 12 },
 
-  inputRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, backgroundColor: th.card, borderRadius: 12, paddingHorizontal: 12, marginBottom: 10, borderWidth: 1, borderColor: th.border },
+  inputRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, backgroundColor: th.surface, borderRadius: 14, paddingHorizontal: 12, marginBottom: 10, borderWidth: 1, borderColor: th.border },
   searchIcon: { fontSize: 16, marginRight: 8 },
   input: { flex: 1, color: th.text, fontSize: 15, paddingVertical: 12 },
   clearBtn: { padding: 4 },
-  clearText: { color: th.textMuted, fontSize: 14 },
+  clearText: { color: th.textSub, fontSize: 14 },
 
   chipsRow: { marginBottom: 8 },
-  chip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: th.card, borderWidth: 1, borderColor: th.border, gap: 4 },
+  chip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: th.surface, borderWidth: 1, borderColor: th.border, gap: 4 },
   chipActive: { backgroundColor: th.accent + '20', borderColor: th.accent },
   chipIcon: { fontSize: 14 },
-  chipText: { color: th.textMuted, fontSize: 13, fontWeight: '500', textTransform: 'capitalize' },
+  chipText: { color: th.textSub, fontSize: 13, fontWeight: '500', textTransform: 'capitalize' },
   chipTextActive: { color: th.accent, fontWeight: '700' },
 
   sortRow: { marginBottom: 8 },
-  sortChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16, backgroundColor: th.card, borderWidth: 1, borderColor: th.border },
-  sortChipActive: { backgroundColor: th.border, borderColor: th.textMuted },
-  sortChipText: { color: th.textMuted, fontSize: 12, fontWeight: '500' },
+  sortChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16, backgroundColor: th.surface, borderWidth: 1, borderColor: th.border },
+  sortChipActive: { backgroundColor: th.card, borderColor: th.textSub },
+  sortChipText: { color: th.textSub, fontSize: 12, fontWeight: '500' },
   sortChipTextActive: { color: th.text, fontWeight: '600' },
 }); }

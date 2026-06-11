@@ -60,7 +60,7 @@ export default function TabNavigator() {
           paddingTop: 6,
         },
         tabBarActiveTintColor: theme.accent,
-        tabBarInactiveTintColor: theme.textMuted,
+        tabBarInactiveTintColor: theme.textSub,
         tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
       }}
     >

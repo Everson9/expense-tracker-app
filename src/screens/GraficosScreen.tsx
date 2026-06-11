@@ -190,7 +190,7 @@ export default function GraficosScreen() {
           xAxisColor={theme.border}
           yAxisColor={theme.border}
           rulesColor={theme.card}
-          xAxisLabelTextStyle={{ color: theme.textMuted, fontSize: 10 }}
+          xAxisLabelTextStyle={{ color: theme.textSub, fontSize: 10 }}
           noOfSections={4}
           spacing={46}
           initialSpacing={10}
@@ -209,18 +209,18 @@ function makeStyles(th: AppTheme) {
     centered: { flex: 1, backgroundColor: th.bg, justifyContent: 'center', alignItems: 'center' },
 
     monthSelector: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-    monthArrow: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: th.card, borderRadius: 10 },
+    monthArrow: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: th.surface, borderRadius: 10 },
     disabled: { opacity: 0.3 },
     monthArrowText: { color: th.accent, fontSize: 24, lineHeight: 28, fontWeight: '300' },
-    disabledText: { color: th.textMuted },
+    disabledText: { color: th.textSub },
     monthLabel: { color: th.text, fontSize: 17, fontWeight: '700' },
 
-    card: { backgroundColor: th.card, borderRadius: 16, padding: 20, marginBottom: 16 },
-    cardTitle: { color: th.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 16 },
+    card: { backgroundColor: th.surface, borderRadius: 16, padding: 20, marginBottom: 16 },
+    cardTitle: { color: th.textSub, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 16 },
 
     pieWrapper: { alignItems: 'center', marginBottom: 20 },
     pieCenter: { alignItems: 'center' },
-    pieCenterLabel: { color: th.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase' },
+    pieCenterLabel: { color: th.textSub, fontSize: 11, fontWeight: '600', textTransform: 'uppercase' },
     pieCenterAmount: { color: th.text, fontSize: 15, fontWeight: '700' },
 
     legend: { gap: 10 },
@@ -229,13 +229,13 @@ function makeStyles(th: AppTheme) {
     legendIcon: { fontSize: 16 },
     legendLabel: { flex: 1, color: th.text, fontSize: 14, textTransform: 'capitalize' },
     legendValue: { color: th.text, fontSize: 14, fontWeight: '600' },
-    legendPct: { color: th.textMuted, fontSize: 12, width: 36, textAlign: 'right' },
+    legendPct: { color: th.textSub, fontSize: 12, width: 36, textAlign: 'right' },
 
     resumoRow: { flexDirection: 'row', justifyContent: 'space-between' },
     resumoItem: { alignItems: 'center', flex: 1 },
-    resumoLabel: { color: th.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', marginBottom: 4 },
+    resumoLabel: { color: th.textSub, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', marginBottom: 4 },
     resumoValue: { fontSize: 16, fontWeight: '700' },
 
-    emptyText: { color: th.textMuted, fontSize: 14, textAlign: 'center', paddingVertical: 20 },
+    emptyText: { color: th.textSub, fontSize: 14, textAlign: 'center', paddingVertical: 20 },
   });
 }

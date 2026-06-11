@@ -246,7 +246,7 @@ function makeStyles(t: AppTheme) {
     marginBottom: 8,
   },
   logoTagline: {
-    color: '#444',
+    color: t.textSub,
     fontSize: 14,
   },
 
@@ -258,14 +258,14 @@ function makeStyles(t: AppTheme) {
     gap: 6,
   },
   inputLabel: {
-    color: t.textMuted,
+    color: t.textSub,
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   input: {
-    backgroundColor: t.card,
+    backgroundColor: t.surface,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 15,
@@ -279,7 +279,7 @@ function makeStyles(t: AppTheme) {
   passwordRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: t.card,
+    backgroundColor: t.surface,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: t.border,
@@ -325,7 +325,7 @@ function makeStyles(t: AppTheme) {
     paddingVertical: 8,
   },
   linkText: {
-    color: t.textMuted,
+    color: t.textSub,
     fontSize: 14,
   },
   linkHighlight: {
@@ -351,7 +351,7 @@ function makeStyles(t: AppTheme) {
     textAlign: 'center',
   },
   successText: {
-    color: '#888',
+    color: t.textSub,
     fontSize: 15,
     textAlign: 'center',
     lineHeight: 22,

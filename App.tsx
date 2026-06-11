@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import { AuthProvider } from './src/contexts/AuthContext';
@@ -35,6 +36,7 @@ export default function App() {
   }, []);
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <SafeAreaProvider>
     <ThemeProvider>
     <AuthProvider>
@@ -49,5 +51,6 @@ export default function App() {
     </AuthProvider>
     </ThemeProvider>
     </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }

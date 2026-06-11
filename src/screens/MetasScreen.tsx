@@ -274,11 +274,11 @@ function makeStyles(th: AppTheme) {
     emptyState: { alignItems: 'center', paddingTop: 60, gap: 8 },
     emptyIcon: { fontSize: 56, marginBottom: 8 },
     emptyTitle: { color: th.text, fontSize: 20, fontWeight: '700' },
-    emptySubtitle: { color: th.textMuted, fontSize: 14, textAlign: 'center', paddingHorizontal: 32 },
+    emptySubtitle: { color: th.textSub, fontSize: 14, textAlign: 'center', paddingHorizontal: 32 },
     emptyBtn: { marginTop: 16, backgroundColor: th.accent, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 },
     emptyBtnText: { color: th.bg, fontSize: 15, fontWeight: '700' },
 
-    sectionLabel: { color: th.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12, marginTop: 8 },
+    sectionLabel: { color: th.textSub, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12, marginTop: 8 },
 
     goalCard: { backgroundColor: th.card, borderRadius: 16, padding: 18, marginBottom: 14 },
     goalCardDone: { opacity: 0.6 },
@@ -288,15 +288,15 @@ function makeStyles(th: AppTheme) {
     actionBtn: { padding: 4 },
     amountsRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginBottom: 10 },
     currentAmount: { color: th.accent, fontSize: 24, fontWeight: '800' },
-    targetAmount: { color: th.textMuted, fontSize: 14 },
+    targetAmount: { color: th.textSub, fontSize: 14 },
     progressTrack: { height: 8, backgroundColor: th.border, borderRadius: 4, overflow: 'hidden', marginBottom: 8 },
     progressBar: { height: 8, borderRadius: 4 },
     goalFooter: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-    pctText: { color: '#888', fontSize: 12, fontWeight: '600' },
-    dateText: { color: th.textMuted, fontSize: 12 },
-    remainingText: { color: th.textMuted, fontSize: 13, marginBottom: 14 },
+    pctText: { color: th.textSub, fontSize: 12, fontWeight: '600' },
+    dateText: { color: th.textSub, fontSize: 12 },
+    remainingText: { color: th.textSub, fontSize: 13, marginBottom: 14 },
     quickAdd: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
-    quickAddLabel: { color: th.textMuted, fontSize: 12 },
+    quickAddLabel: { color: th.textSub, fontSize: 12 },
     quickAddBtn: { backgroundColor: th.border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
     quickAddBtnText: { color: th.accent, fontSize: 13, fontWeight: '700' },
 
@@ -311,6 +311,6 @@ function makeStyles(th: AppTheme) {
     saveBtn: { backgroundColor: th.accent, borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 4 },
     saveBtnText: { color: th.bg, fontSize: 16, fontWeight: '700' },
     cancelBtn: { padding: 12, alignItems: 'center' },
-    cancelBtnText: { color: th.textMuted, fontSize: 14 },
+    cancelBtnText: { color: th.textSub, fontSize: 14 },
   });
 }
