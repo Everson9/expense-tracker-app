@@ -209,7 +209,7 @@ function makeStyles(th: AppTheme) {
     centered: { flex: 1, backgroundColor: th.bg, justifyContent: 'center', alignItems: 'center' },
 
     monthSelector: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-    monthArrow: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: th.surface, borderRadius: 10 },
+    monthArrow: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: th.surface, borderRadius: 10, borderWidth: 1, borderColor: th.border },
     disabled: { opacity: 0.3 },
     monthArrowText: { color: th.accent, fontSize: 24, lineHeight: 28, fontWeight: '300' },
     disabledText: { color: th.textSub },

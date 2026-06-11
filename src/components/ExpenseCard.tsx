@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Expense } from '../types/expense';
 import { useTheme, AppTheme } from '../contexts/ThemeContext';
+import { useCategories } from '../contexts/CategoryContext';
 
 const CATEGORY_COLORS: Record<string, string> = {
   alimentação: '#FF9F43',
@@ -12,14 +13,17 @@ const CATEGORY_COLORS: Record<string, string> = {
   outros:      '#A4B0BD',
 };
 
-const CATEGORY_ICONS: Record<string, string> = {
-  alimentação: '🍔',
-  transporte:  '🚗',
-  lazer:       '🎮',
-  saúde:       '💊',
-  moradia:     '🏠',
-  outros:      '📦',
-};
+const COLOR_PALETTE = [
+  '#FF9F43','#54A0FF','#A29BFE','#26DE81','#FD9644',
+  '#FDA7DF','#12CBC4','#F79F1F','#00D2D3','#C4E538',
+];
+
+function categoryColor(name: string): string {
+  if (CATEGORY_COLORS[name.toLowerCase()]) return CATEGORY_COLORS[name.toLowerCase()];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) { hash = (hash << 5) - hash + name.charCodeAt(i); hash |= 0; }
+  return COLOR_PALETTE[Math.abs(hash) % COLOR_PALETTE.length];
+}
 
 interface Props {
   expense: Expense;
@@ -38,10 +42,12 @@ function formatBRL(v: number): string {
 
 export default function ExpenseCard({ expense, onEdit, onDelete }: Props) {
   const { theme } = useTheme();
+  const { categories } = useCategories();
   const styles = makeStyles(theme);
   const isReceita = expense.type === 'receita';
-  const color = isReceita ? theme.accent : (CATEGORY_COLORS[expense.category] ?? '#A4B0BD');
-  const icon = isReceita ? '💰' : (CATEGORY_ICONS[expense.category] ?? '📦');
+  const catData = categories.find(c => c.name.toLowerCase() === expense.category?.toLowerCase());
+  const color = isReceita ? theme.accent : categoryColor(expense.category ?? 'outros');
+  const icon = isReceita ? '💰' : (catData?.icon ?? '📦');
   const amount = formatBRL(Number(expense.amount));
 
   return (

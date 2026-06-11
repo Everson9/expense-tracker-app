@@ -168,10 +168,10 @@ export default function ProfileScreen() {
             <Text style={styles.catName}>{cat.name}</Text>
             <View style={styles.catActions}>
               <TouchableOpacity onPress={() => openEdit(cat.id, cat.name, cat.icon)} style={styles.actionBtn}>
-                <Text style={styles.actionEdit}>✏️</Text>
+                <Text style={styles.actionEdit}>Editar</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDelete(cat.id, cat.name)} style={styles.actionBtn}>
-                <Text style={styles.actionDelete}>🗑️</Text>
+              <TouchableOpacity onPress={() => handleDelete(cat.id, cat.name)} style={[styles.actionBtn, styles.actionBtnDelete]}>
+                <Text style={styles.actionDelete}>Excluir</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -309,10 +309,11 @@ function makeStyles(th: AppTheme) {
   categoryRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: th.card, borderRadius: 12, padding: 14, marginBottom: 8 },
   catIcon: { fontSize: 22, marginRight: 12 },
   catName: { flex: 1, color: th.text, fontSize: 15, textTransform: 'capitalize' },
-  catActions: { flexDirection: 'row', gap: 4 },
-  actionBtn: { padding: 6 },
-  actionEdit: { fontSize: 16 },
-  actionDelete: { fontSize: 16 },
+  catActions: { flexDirection: 'row', gap: 6 },
+  actionBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, backgroundColor: th.border },
+  actionBtnDelete: { backgroundColor: th.danger + '18' },
+  actionEdit: { color: th.textSub, fontSize: 12, fontWeight: '600' },
+  actionDelete: { color: th.danger, fontSize: 12, fontWeight: '600' },
 
   exportBtn: { backgroundColor: th.accent, borderRadius: 12, padding: 16, alignItems: 'center' },
   exportBtnText: { color: th.bg, fontSize: 15, fontWeight: '700' },

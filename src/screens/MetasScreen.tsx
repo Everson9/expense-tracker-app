@@ -156,10 +156,10 @@ export default function MetasScreen() {
                 <Text style={styles.goalTitle}>{goal.title}</Text>
                 <View style={styles.goalActions}>
                   <TouchableOpacity onPress={() => openEdit(goal)} style={styles.actionBtn}>
-                    <Text>✏️</Text>
+                    <Text style={styles.actionBtnText}>Editar</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={() => handleDelete(goal.id)} style={styles.actionBtn}>
-                    <Text>🗑️</Text>
+                  <TouchableOpacity onPress={() => handleDelete(goal.id)} style={[styles.actionBtn, styles.actionBtnDelete]}>
+                    <Text style={styles.actionBtnDeleteText}>Excluir</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -205,8 +205,8 @@ export default function MetasScreen() {
               <View key={goal.id} style={[styles.goalCard, styles.goalCardDone]}>
                 <View style={styles.goalHeader}>
                   <Text style={styles.goalTitle}>{goal.title}</Text>
-                  <TouchableOpacity onPress={() => handleDelete(goal.id)} style={styles.actionBtn}>
-                    <Text>🗑️</Text>
+                  <TouchableOpacity onPress={() => handleDelete(goal.id)} style={[styles.actionBtn, styles.actionBtnDelete]}>
+                    <Text style={styles.actionBtnDeleteText}>Excluir</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={styles.progressTrack}>
@@ -280,12 +280,15 @@ function makeStyles(th: AppTheme) {
 
     sectionLabel: { color: th.textSub, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12, marginTop: 8 },
 
-    goalCard: { backgroundColor: th.card, borderRadius: 16, padding: 18, marginBottom: 14 },
+    goalCard: { backgroundColor: th.surface, borderRadius: 16, padding: 18, marginBottom: 14, borderWidth: 1, borderColor: th.border },
     goalCardDone: { opacity: 0.6 },
     goalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
     goalTitle: { color: th.text, fontSize: 17, fontWeight: '700', flex: 1 },
-    goalActions: { flexDirection: 'row', gap: 4 },
-    actionBtn: { padding: 4 },
+    goalActions: { flexDirection: 'row', gap: 6 },
+    actionBtn: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 8, backgroundColor: th.card, borderWidth: 1, borderColor: th.border },
+    actionBtnText: { color: th.textSub, fontSize: 12, fontWeight: '600' },
+    actionBtnDelete: { borderColor: th.danger + '40' },
+    actionBtnDeleteText: { color: th.danger, fontSize: 12, fontWeight: '600' },
     amountsRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginBottom: 10 },
     currentAmount: { color: th.accent, fontSize: 24, fontWeight: '800' },
     targetAmount: { color: th.textSub, fontSize: 14 },
@@ -302,12 +305,12 @@ function makeStyles(th: AppTheme) {
 
     modalOverlay: { flex: 1, justifyContent: 'flex-end' },
     modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
-    modalSheet: { backgroundColor: th.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, gap: 10 },
+    modalSheet: { backgroundColor: th.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, gap: 10, borderWidth: 1, borderColor: th.border },
     modalHandle: { width: 40, height: 4, backgroundColor: th.border, borderRadius: 2, alignSelf: 'center', marginBottom: 8 },
     modalTitle: { color: th.text, fontSize: 18, fontWeight: '700' },
     emojiBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center', borderRadius: 10, backgroundColor: th.border },
     emojiBtnActive: { backgroundColor: th.accent + '30', borderWidth: 2, borderColor: th.accent },
-    modalInput: { backgroundColor: th.bg, borderRadius: 12, padding: 14, color: th.text, fontSize: 15, borderWidth: 1, borderColor: th.border },
+    modalInput: { backgroundColor: th.card, borderRadius: 12, padding: 14, color: th.text, fontSize: 15, borderWidth: 1, borderColor: th.border },
     saveBtn: { backgroundColor: th.accent, borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 4 },
     saveBtnText: { color: th.bg, fontSize: 16, fontWeight: '700' },
     cancelBtn: { padding: 12, alignItems: 'center' },
