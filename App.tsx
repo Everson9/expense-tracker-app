@@ -6,6 +6,7 @@ import * as Updates from 'expo-updates';
 import { AuthProvider } from './src/contexts/AuthContext';
 import { CategoryProvider } from './src/contexts/CategoryContext';
 import { MonthProvider } from './src/contexts/MonthContext';
+import { ThemeProvider } from './src/contexts/ThemeContext';
 import RootNavigator from './src/navigation/RootNavigator';
 
 async function checkForUpdates() {
@@ -33,6 +34,7 @@ export default function App() {
   }, []);
 
   return (
+    <ThemeProvider>
     <AuthProvider>
       <CategoryProvider>
         <MonthProvider>
@@ -43,5 +45,6 @@ export default function App() {
         </MonthProvider>
       </CategoryProvider>
     </AuthProvider>
+    </ThemeProvider>
   );
 }

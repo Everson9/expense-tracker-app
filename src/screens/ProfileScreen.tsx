@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { useCategories } from '../contexts/CategoryContext';
+import { useTheme, THEMES } from '../contexts/ThemeContext';
 import { categoryService } from '../services/api';
 
 const EMOJI_OPTIONS = [
@@ -19,6 +20,7 @@ const EMOJI_OPTIONS = [
 export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const { categories, reload } = useCategories();
+  const { theme, setThemeById } = useTheme();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -127,6 +129,26 @@ export default function ProfileScreen() {
         ))}
       </View>
 
+      {/* Theme picker */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Tema</Text>
+        <View style={styles.themeGrid}>
+          {THEMES.map(t => (
+            <TouchableOpacity
+              key={t.id}
+              style={[styles.themeBtn, theme.id === t.id && { borderColor: t.accent, borderWidth: 2 }]}
+              onPress={() => setThemeById(t.id)}
+              activeOpacity={0.75}
+            >
+              <View style={[styles.themeSwatch, { backgroundColor: t.bg, borderColor: t.accent }]}>
+                <Text style={styles.themeEmoji}>{t.emoji}</Text>
+              </View>
+              <Text style={[styles.themeName, theme.id === t.id && { color: '#F5F5F5' }]}>{t.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
       {/* Logout */}
       <View style={styles.section}>
         <TouchableOpacity style={styles.logoutBtn} onPress={handleSignOut}>
@@ -212,6 +234,12 @@ const styles = StyleSheet.create({
   actionBtn: { padding: 6 },
   actionEdit: { fontSize: 16 },
   actionDelete: { fontSize: 16 },
+
+  themeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+  themeBtn: { alignItems: 'center', borderRadius: 12, padding: 8, borderWidth: 1, borderColor: '#2A2A2A', backgroundColor: '#1A1A1A', width: '30%' },
+  themeSwatch: { width: 44, height: 44, borderRadius: 22, borderWidth: 2, justifyContent: 'center', alignItems: 'center', marginBottom: 6 },
+  themeEmoji: { fontSize: 22 },
+  themeName: { color: '#666', fontSize: 11, fontWeight: '600', textAlign: 'center' },
 
   logoutBtn: { backgroundColor: '#FF6B6B15', borderRadius: 12, padding: 16, alignItems: 'center', borderWidth: 1, borderColor: '#FF6B6B30' },
   logoutText: { color: '#FF6B6B', fontSize: 16, fontWeight: '600' },
