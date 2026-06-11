@@ -1,6 +1,12 @@
 import axios from 'axios';
-import { Expense, CreateExpenseDTO, UpdateExpenseDTO } from '../types/expense';
+import { Expense, CreateExpenseDTO, UpdateExpenseDTO, Category } from '../types/expense';
 import { supabase } from '../lib/supabase';
+
+export interface Budget {
+  id: string;
+  category: Category;
+  amount: number;
+}
 
 const API_URL =
   process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3000/api';
@@ -52,5 +58,21 @@ export const expenseService = {
 
   delete: async (id: string): Promise<void> => {
     await api.delete(`/expenses/${id}`);
+  },
+};
+
+export const budgetService = {
+  getAll: async (): Promise<Budget[]> => {
+    const { data } = await api.get<Budget[]>('/budgets');
+    return data;
+  },
+
+  upsert: async (category: Category, amount: number): Promise<Budget> => {
+    const { data } = await api.put<Budget>(`/budgets/${category}`, { amount });
+    return data;
+  },
+
+  delete: async (category: Category): Promise<void> => {
+    await api.delete(`/budgets/${category}`);
   },
 };
