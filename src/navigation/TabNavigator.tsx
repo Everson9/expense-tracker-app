@@ -7,6 +7,7 @@ import HomeScreen from '../screens/HomeScreen';
 import GastosScreen from '../screens/GastosScreen';
 import ReceitasScreen from '../screens/ReceitasScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import GraficosScreen from '../screens/GraficosScreen';
 import FormScreen from '../screens/FormScreen';
 
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -70,6 +71,19 @@ export default function TabNavigator() {
         name="Receitas"
         component={ReceitasStack}
         options={{ tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>💰</Text> }}
+      />
+      <Tab.Screen
+        name="Gráficos"
+        component={GraficosScreen}
+        options={{
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>📊</Text>,
+          headerShown: true,
+          headerTitle: 'Gráficos',
+          headerStyle: { backgroundColor: '#0D0D0D' },
+          headerTintColor: '#F5F5F5',
+          headerTitleStyle: { fontWeight: '700' as const },
+          headerShadowVisible: false,
+        }}
       />
       <Tab.Screen
         name="Perfil"

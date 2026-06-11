@@ -11,10 +11,11 @@ export type AppStackParamList = {
 };
 
 export type TabParamList = {
-  Início:   undefined;
-  Gastos:   undefined;
-  Receitas: undefined;
-  Perfil:   undefined;
+  Início:    undefined;
+  Gastos:    undefined;
+  Receitas:  undefined;
+  Gráficos:  undefined;
+  Perfil:    undefined;
 };
 
 export type RootStackParamList = AppStackParamList;
