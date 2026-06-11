@@ -6,11 +6,14 @@ export type Category =
   | 'moradia'
   | 'outros';
 
+export type TransactionType = 'despesa' | 'receita';
+
 export interface Expense {
   id: string;
   title: string;
   amount: number;
   category: Category;
+  type: TransactionType;
   date: string;
   description?: string;
   created_at?: string;

@@ -4,7 +4,7 @@ import { Expense, Category } from '../types/expense';
 
 const CATEGORY_COLORS: Record<Category, string> = {
   alimentação: '#FF9F43',
-  transporte: '#54A0FF',
+  transporte:  '#54A0FF',
   lazer:       '#A29BFE',
   saúde:       '#26DE81',
   moradia:     '#FD9644',
@@ -27,8 +27,9 @@ interface Props {
 }
 
 export default function ExpenseCard({ expense, onEdit, onDelete }: Props) {
-  const color = CATEGORY_COLORS[expense.category] ?? '#A4B0BD';
-  const icon  = CATEGORY_ICONS[expense.category]  ?? '📦';
+  const isReceita = expense.type === 'receita';
+  const color = isReceita ? '#00D4A1' : (CATEGORY_COLORS[expense.category] ?? '#A4B0BD');
+  const icon  = isReceita ? '💰' : (CATEGORY_ICONS[expense.category] ?? '📦');
 
   const formattedDate = new Date(expense.date + 'T12:00:00').toLocaleDateString('pt-BR');
   const formattedAmount = new Intl.NumberFormat('pt-BR', {
@@ -38,21 +39,22 @@ export default function ExpenseCard({ expense, onEdit, onDelete }: Props) {
 
   return (
     <View style={styles.card}>
-      {/* Left accent bar */}
       <View style={[styles.accent, { backgroundColor: color }]} />
 
-      {/* Category icon */}
       <View style={[styles.iconWrap, { backgroundColor: color + '22' }]}>
         <Text style={styles.icon}>{icon}</Text>
       </View>
 
-      {/* Main content */}
       <View style={styles.content}>
         <Text style={styles.title} numberOfLines={1}>
           {expense.title}
         </Text>
         <View style={styles.metaRow}>
-          <Text style={[styles.category, { color }]}>{expense.category}</Text>
+          {isReceita ? (
+            <Text style={[styles.category, { color }]}>receita</Text>
+          ) : (
+            <Text style={[styles.category, { color }]}>{expense.category}</Text>
+          )}
           <Text style={styles.dot}>·</Text>
           <Text style={styles.date}>{formattedDate}</Text>
         </View>
@@ -63,20 +65,15 @@ export default function ExpenseCard({ expense, onEdit, onDelete }: Props) {
         ) : null}
       </View>
 
-      {/* Amount + actions */}
       <View style={styles.right}>
-        <Text style={styles.amount}>{formattedAmount}</Text>
+        <Text style={[styles.amount, { color: isReceita ? '#00D4A1' : '#FF6B6B' }]}>
+          {isReceita ? '+' : '-'}{formattedAmount}
+        </Text>
         <View style={styles.actions}>
-          <TouchableOpacity
-            onPress={onEdit}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
+          <TouchableOpacity onPress={onEdit} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <Text style={styles.actionIcon}>✏️</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={onDelete}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
+          <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
             <Text style={styles.actionIcon}>🗑️</Text>
           </TouchableOpacity>
         </View>
@@ -150,7 +147,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   amount: {
-    color: '#FF6B6B',
     fontSize: 15,
     fontWeight: '700',
   },

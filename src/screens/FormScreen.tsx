@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../types/navigation';
-import { Category } from '../types/expense';
+import { Category, TransactionType } from '../types/expense';
 import { expenseService } from '../services/api';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Form'>;
@@ -38,9 +38,9 @@ const CATEGORY_COLORS: Record<Category, string> = {
 
 export default function FormScreen({ navigation, route }: Props) {
   const editing = route.params?.expense;
-
   const todayISO = new Date().toISOString().split('T')[0];
 
+  const [type,        setType]        = useState<TransactionType>(editing?.type ?? 'despesa');
   const [title,       setTitle]       = useState(editing?.title       ?? '');
   const [amount,      setAmount]      = useState(editing ? String(editing.amount) : '');
   const [category,    setCategory]    = useState<Category>(editing?.category ?? 'outros');
@@ -50,7 +50,7 @@ export default function FormScreen({ navigation, route }: Props) {
 
   const handleSave = async () => {
     if (!title.trim()) {
-      return Alert.alert('Campo obrigatório', 'Informe a descrição do gasto.');
+      return Alert.alert('Campo obrigatório', `Informe a descrição ${type === 'receita' ? 'da receita' : 'do gasto'}.`);
     }
     const parsedAmount = parseFloat(amount.replace(',', '.'));
     if (!amount || isNaN(parsedAmount) || parsedAmount <= 0) {
@@ -66,6 +66,7 @@ export default function FormScreen({ navigation, route }: Props) {
       title:       title.trim(),
       amount:      parsedAmount,
       category,
+      type,
       date,
       description: description.trim() || undefined,
     };
@@ -78,11 +79,13 @@ export default function FormScreen({ navigation, route }: Props) {
       }
       navigation.goBack();
     } catch {
-      Alert.alert('Erro', 'Não foi possível salvar o gasto. Verifique a conexão com a API.');
+      Alert.alert('Erro', 'Não foi possível salvar. Verifique a conexão.');
     } finally {
       setLoading(false);
     }
   };
+
+  const isReceita = type === 'receita';
 
   return (
     <KeyboardAvoidingView
@@ -94,6 +97,28 @@ export default function FormScreen({ navigation, route }: Props) {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
+        {/* Tipo: Despesa / Receita */}
+        <View style={styles.typeToggle}>
+          <TouchableOpacity
+            style={[styles.typeBtn, !isReceita && styles.typeBtnActiveDespesa]}
+            onPress={() => setType('despesa')}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.typeBtnText, !isReceita && styles.typeBtnTextActive]}>
+              💸 Despesa
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.typeBtn, isReceita && styles.typeBtnActiveReceita]}
+            onPress={() => setType('receita')}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.typeBtnText, isReceita && styles.typeBtnTextActive]}>
+              💰 Receita
+            </Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Descrição */}
         <View style={styles.field}>
           <Text style={styles.label}>Descrição *</Text>
@@ -101,7 +126,7 @@ export default function FormScreen({ navigation, route }: Props) {
             style={styles.input}
             value={title}
             onChangeText={setTitle}
-            placeholder="Ex: Almoço no restaurante"
+            placeholder={isReceita ? 'Ex: Salário, Freela...' : 'Ex: Almoço no restaurante'}
             placeholderTextColor="#444"
             maxLength={100}
           />
@@ -134,40 +159,34 @@ export default function FormScreen({ navigation, route }: Props) {
           />
         </View>
 
-        {/* Categoria */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Categoria *</Text>
-          <View style={styles.categoryGrid}>
-            {CATEGORIES.map(cat => {
-              const selected = category === cat.value;
-              const color    = CATEGORY_COLORS[cat.value];
-              return (
-                <TouchableOpacity
-                  key={cat.value}
-                  style={[
-                    styles.categoryBtn,
-                    selected && {
-                      borderColor:     color,
-                      backgroundColor: color + '20',
-                    },
-                  ]}
-                  onPress={() => setCategory(cat.value)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.categoryBtnIcon}>{cat.icon}</Text>
-                  <Text
+        {/* Categoria — só para despesas */}
+        {!isReceita && (
+          <View style={styles.field}>
+            <Text style={styles.label}>Categoria *</Text>
+            <View style={styles.categoryGrid}>
+              {CATEGORIES.map(cat => {
+                const selected = category === cat.value;
+                const color    = CATEGORY_COLORS[cat.value];
+                return (
+                  <TouchableOpacity
+                    key={cat.value}
                     style={[
-                      styles.categoryBtnLabel,
-                      selected && { color },
+                      styles.categoryBtn,
+                      selected && { borderColor: color, backgroundColor: color + '20' },
                     ]}
+                    onPress={() => setCategory(cat.value)}
+                    activeOpacity={0.7}
                   >
-                    {cat.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
+                    <Text style={styles.categoryBtnIcon}>{cat.icon}</Text>
+                    <Text style={[styles.categoryBtnLabel, selected && { color }]}>
+                      {cat.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
-        </View>
+        )}
 
         {/* Observação */}
         <View style={styles.field}>
@@ -186,7 +205,11 @@ export default function FormScreen({ navigation, route }: Props) {
 
         {/* Save button */}
         <TouchableOpacity
-          style={[styles.saveBtn, loading && styles.saveBtnDisabled]}
+          style={[
+            styles.saveBtn,
+            isReceita && styles.saveBtnReceita,
+            loading && styles.saveBtnDisabled,
+          ]}
           onPress={handleSave}
           disabled={loading}
           activeOpacity={0.85}
@@ -195,7 +218,9 @@ export default function FormScreen({ navigation, route }: Props) {
             <ActivityIndicator color="#0D0D0D" />
           ) : (
             <Text style={styles.saveBtnText}>
-              {editing ? 'Salvar alterações' : 'Registrar gasto'}
+              {editing
+                ? 'Salvar alterações'
+                : isReceita ? 'Registrar receita' : 'Registrar despesa'}
             </Text>
           )}
         </TouchableOpacity>
@@ -212,6 +237,40 @@ const styles = StyleSheet.create({
   scroll: {
     padding: 20,
     paddingBottom: 48,
+  },
+
+  // Type toggle
+  typeToggle: {
+    flexDirection: 'row',
+    backgroundColor: '#1A1A1A',
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 24,
+    gap: 4,
+  },
+  typeBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 9,
+    alignItems: 'center',
+  },
+  typeBtnActiveDespesa: {
+    backgroundColor: '#FF6B6B22',
+    borderWidth: 1,
+    borderColor: '#FF6B6B',
+  },
+  typeBtnActiveReceita: {
+    backgroundColor: '#00D4A122',
+    borderWidth: 1,
+    borderColor: '#00D4A1',
+  },
+  typeBtnText: {
+    color: '#555',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  typeBtnTextActive: {
+    color: '#F5F5F5',
   },
 
   field: {
@@ -240,7 +299,6 @@ const styles = StyleSheet.create({
     paddingTop: 14,
   },
 
-  // Category grid
   categoryGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -266,13 +324,15 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
-  // Save
   saveBtn: {
-    backgroundColor: '#00D4A1',
+    backgroundColor: '#FF6B6B',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 8,
+  },
+  saveBtnReceita: {
+    backgroundColor: '#00D4A1',
   },
   saveBtnDisabled: {
     opacity: 0.55,

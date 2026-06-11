@@ -115,7 +115,15 @@ export default function HomeScreen({ navigation }: Props) {
     return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
   });
 
-  const totalMonth = monthExpenses.reduce((acc, e) => acc + Number(e.amount), 0);
+  const totalDespesas = monthExpenses
+    .filter(e => e.type === 'despesa')
+    .reduce((acc, e) => acc + Number(e.amount), 0);
+
+  const totalReceitas = monthExpenses
+    .filter(e => e.type === 'receita')
+    .reduce((acc, e) => acc + Number(e.amount), 0);
+
+  const saldo = totalReceitas - totalDespesas;
 
   const formatBRL = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
@@ -178,8 +186,27 @@ export default function HomeScreen({ navigation }: Props) {
 
             {/* Summary card */}
             <View style={styles.summaryCard}>
-              <Text style={styles.summaryLabel}>Total do mês</Text>
-              <Text style={styles.summaryAmount}>{formatBRL(totalMonth)}</Text>
+              <View style={styles.summaryRow}>
+                <View style={styles.summaryCol}>
+                  <Text style={styles.summaryLabel}>Despesas</Text>
+                  <Text style={[styles.summaryAmount, { color: '#FF6B6B' }]}>
+                    {formatBRL(totalDespesas)}
+                  </Text>
+                </View>
+                <View style={styles.summaryDivider} />
+                <View style={styles.summaryCol}>
+                  <Text style={styles.summaryLabel}>Receitas</Text>
+                  <Text style={[styles.summaryAmount, { color: '#00D4A1' }]}>
+                    {formatBRL(totalReceitas)}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.saldoRow}>
+                <Text style={styles.summaryLabel}>Saldo</Text>
+                <Text style={[styles.saldoAmount, { color: saldo >= 0 ? '#00D4A1' : '#FF6B6B' }]}>
+                  {saldo >= 0 ? '+' : ''}{formatBRL(saldo)}
+                </Text>
+              </View>
               <Text style={styles.summaryCount}>
                 {monthExpenses.length} registro{monthExpenses.length !== 1 ? 's' : ''}
               </Text>
@@ -264,20 +291,44 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     borderLeftWidth: 3,
     borderLeftColor: '#00D4A1',
+    gap: 16,
+  },
+  summaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  summaryCol: {
+    flex: 1,
+  },
+  summaryDivider: {
+    width: 1,
+    height: 40,
+    backgroundColor: '#2A2A2A',
   },
   summaryLabel: {
     color: '#666',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
     marginBottom: 4,
   },
   summaryAmount: {
-    color: '#F5F5F5',
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: '700',
-    marginBottom: 8,
+  },
+  saldoRow: {
+    borderTopWidth: 1,
+    borderTopColor: '#2A2A2A',
+    paddingTop: 14,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  saldoAmount: {
+    fontSize: 22,
+    fontWeight: '700',
   },
   summaryCount: {
     color: '#555',
