@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
+  TextInput as RNTextInput,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../types/navigation';
@@ -17,9 +19,11 @@ import { supabase } from '../lib/supabase';
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail]           = useState('');
+  const [password, setPassword]     = useState('');
+  const [showPassword, setShowPass] = useState(false);
+  const [loading, setLoading]       = useState(false);
+  const passwordRef                  = useRef<RNTextInput>(null);
 
   const handleLogin = async () => {
     if (!email.trim() || !password.trim()) {
@@ -28,7 +32,7 @@ export default function LoginScreen({ navigation }: Props) {
     }
 
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
     setLoading(false);
 
     if (!error) return;
@@ -45,52 +49,96 @@ export default function LoginScreen({ navigation }: Props) {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
     >
-      <View style={styles.inner}>
-        <Text style={styles.title}>Organizador</Text>
-        <Text style={styles.subtitle}>de Gastos</Text>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Logo */}
+        <View style={styles.logoArea}>
+          <Text style={styles.logoTitle}>Organizador</Text>
+          <Text style={styles.logoSubtitle}>de Gastos</Text>
+          <Text style={styles.logoTagline}>Controle financeiro simples</Text>
+        </View>
 
+        {/* Form */}
         <View style={styles.form}>
-          <TextInput
-            style={styles.input}
-            placeholder="E-mail"
-            placeholderTextColor="#555"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Senha"
-            placeholderTextColor="#555"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-          />
+          {/* Email */}
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>E-mail</Text>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={setEmail}
+              placeholder="seu@email.com"
+              placeholderTextColor="#444"
+              autoCapitalize="none"
+              autoCorrect={false}
+              keyboardType="email-address"
+              autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="next"
+              onSubmitEditing={() => passwordRef.current?.focus()}
+            />
+          </View>
 
+          {/* Senha */}
+          <View style={styles.inputWrapper}>
+            <Text style={styles.inputLabel}>Senha</Text>
+            <View style={styles.passwordRow}>
+              <TextInput
+                ref={passwordRef}
+                style={styles.passwordInput}
+                value={password}
+                onChangeText={setPassword}
+                placeholder="••••••••"
+                placeholderTextColor="#444"
+                secureTextEntry={!showPassword}
+                autoComplete="off"
+                textContentType="password"
+                autoCorrect={false}
+                autoCapitalize="none"
+                returnKeyType="done"
+                onSubmitEditing={handleLogin}
+              />
+              <TouchableOpacity
+                style={styles.eyeBtn}
+                onPress={() => setShowPass(v => !v)}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={styles.eyeIcon}>{showPassword ? '🙈' : '👁'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Entrar */}
           <TouchableOpacity
-            style={styles.button}
+            style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleLogin}
             disabled={loading}
             activeOpacity={0.85}
           >
-            {loading ? (
-              <ActivityIndicator color="#0D0D0D" />
-            ) : (
-              <Text style={styles.buttonText}>Entrar</Text>
-            )}
+            {loading
+              ? <ActivityIndicator color="#0D0D0D" />
+              : <Text style={styles.buttonText}>Entrar</Text>
+            }
           </TouchableOpacity>
 
+          {/* Criar conta */}
           <TouchableOpacity
             style={styles.linkButton}
             onPress={() => navigation.navigate('Signup')}
           >
-            <Text style={styles.linkText}>Não tem conta? <Text style={styles.linkHighlight}>Criar conta</Text></Text>
+            <Text style={styles.linkText}>
+              Não tem conta?{' '}
+              <Text style={styles.linkHighlight}>Criar conta</Text>
+            </Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -100,43 +148,94 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#0D0D0D',
   },
-  inner: {
-    flex: 1,
-    justifyContent: 'center',
-    paddingHorizontal: 32,
+  scroll: {
+    flexGrow: 1,
+    paddingHorizontal: 28,
+    paddingTop: 72,
+    paddingBottom: 40,
   },
-  title: {
-    color: '#F5F5F5',
-    fontSize: 32,
-    fontWeight: '700',
-    textAlign: 'center',
-  },
-  subtitle: {
-    color: '#00D4A1',
-    fontSize: 32,
-    fontWeight: '700',
-    textAlign: 'center',
+
+  // Logo
+  logoArea: {
     marginBottom: 48,
   },
+  logoTitle: {
+    color: '#F5F5F5',
+    fontSize: 36,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+  },
+  logoSubtitle: {
+    color: '#00D4A1',
+    fontSize: 36,
+    fontWeight: '700',
+    letterSpacing: -0.5,
+    marginBottom: 8,
+  },
+  logoTagline: {
+    color: '#444',
+    fontSize: 14,
+  },
+
+  // Form
   form: {
-    gap: 12,
+    gap: 16,
+  },
+  inputWrapper: {
+    gap: 6,
+  },
+  inputLabel: {
+    color: '#666',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 0.8,
   },
   input: {
     backgroundColor: '#1A1A1A',
     borderRadius: 12,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 15,
     color: '#F5F5F5',
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#2A2A2A',
   },
+
+  // Password
+  passwordRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1A1A1A',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#2A2A2A',
+  },
+  passwordInput: {
+    flex: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+    color: '#F5F5F5',
+    fontSize: 16,
+  },
+  eyeBtn: {
+    paddingHorizontal: 16,
+    paddingVertical: 15,
+  },
+  eyeIcon: {
+    fontSize: 18,
+  },
+
+  // Button
   button: {
     backgroundColor: '#00D4A1',
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 4,
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: '#0D0D0D',
@@ -145,7 +244,7 @@ const styles = StyleSheet.create({
   },
   linkButton: {
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 8,
   },
   linkText: {
     color: '#555',
