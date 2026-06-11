@@ -19,11 +19,20 @@ import { useAuth } from '../contexts/AuthContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
 
+const MONTHS_PT = [
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+];
+
 export default function HomeScreen({ navigation }: Props) {
   const { signOut } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  const now = new Date();
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
 
   useEffect(() => {
     navigation.setOptions({
@@ -76,24 +85,40 @@ export default function HomeScreen({ navigation }: Props) {
     );
   };
 
-  const now = new Date();
-  const totalMonth = expenses
-    .filter(e => {
-      const d = new Date(e.date + 'T12:00:00');
-      return (
-        d.getMonth() === now.getMonth() &&
-        d.getFullYear() === now.getFullYear()
-      );
-    })
-    .reduce((acc, e) => acc + Number(e.amount), 0);
+  const goToPrevMonth = () => {
+    if (selectedMonth === 0) {
+      setSelectedMonth(11);
+      setSelectedYear(y => y - 1);
+    } else {
+      setSelectedMonth(m => m - 1);
+    }
+  };
 
-  const totalGeral = expenses.reduce((acc, e) => acc + Number(e.amount), 0);
+  const goToNextMonth = () => {
+    const isCurrentMonth =
+      selectedMonth === now.getMonth() && selectedYear === now.getFullYear();
+    if (isCurrentMonth) return;
+
+    if (selectedMonth === 11) {
+      setSelectedMonth(0);
+      setSelectedYear(y => y + 1);
+    } else {
+      setSelectedMonth(m => m + 1);
+    }
+  };
+
+  const isCurrentMonth =
+    selectedMonth === now.getMonth() && selectedYear === now.getFullYear();
+
+  const monthExpenses = expenses.filter(e => {
+    const d = new Date(e.date + 'T12:00:00');
+    return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+  });
+
+  const totalMonth = monthExpenses.reduce((acc, e) => acc + Number(e.amount), 0);
 
   const formatBRL = (value: number) =>
-    new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
   if (loading) {
     return (
@@ -106,7 +131,7 @@ export default function HomeScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <FlatList
-        data={expenses}
+        data={monthExpenses}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <ExpenseCard
@@ -116,7 +141,7 @@ export default function HomeScreen({ navigation }: Props) {
           />
         )}
         contentContainerStyle={
-          expenses.length === 0 ? styles.emptyContainer : styles.list
+          monthExpenses.length === 0 ? styles.emptyContainer : styles.list
         }
         refreshControl={
           <RefreshControl
@@ -129,29 +154,42 @@ export default function HomeScreen({ navigation }: Props) {
           />
         }
         ListHeaderComponent={
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryRow}>
-              <View>
-                <Text style={styles.summaryLabel}>Este mês</Text>
-                <Text style={styles.summaryAmount}>{formatBRL(totalMonth)}</Text>
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.summaryRight}>
-                <Text style={styles.summaryLabel}>Total geral</Text>
-                <Text style={styles.summaryAmountSecondary}>
-                  {formatBRL(totalGeral)}
+          <>
+            {/* Month selector */}
+            <View style={styles.monthSelector}>
+              <TouchableOpacity onPress={goToPrevMonth} style={styles.monthArrow}>
+                <Text style={styles.monthArrowText}>‹</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.monthLabel}>
+                {MONTHS_PT[selectedMonth]} {selectedYear}
+              </Text>
+
+              <TouchableOpacity
+                onPress={goToNextMonth}
+                style={[styles.monthArrow, isCurrentMonth && styles.monthArrowDisabled]}
+                disabled={isCurrentMonth}
+              >
+                <Text style={[styles.monthArrowText, isCurrentMonth && styles.monthArrowTextDisabled]}>
+                  ›
                 </Text>
-              </View>
+              </TouchableOpacity>
             </View>
-            <Text style={styles.summaryCount}>
-              {expenses.length} registro{expenses.length !== 1 ? 's' : ''}
-            </Text>
-          </View>
+
+            {/* Summary card */}
+            <View style={styles.summaryCard}>
+              <Text style={styles.summaryLabel}>Total do mês</Text>
+              <Text style={styles.summaryAmount}>{formatBRL(totalMonth)}</Text>
+              <Text style={styles.summaryCount}>
+                {monthExpenses.length} registro{monthExpenses.length !== 1 ? 's' : ''}
+              </Text>
+            </View>
+          </>
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>💸</Text>
-            <Text style={styles.emptyTitle}>Nenhum gasto ainda</Text>
+            <Text style={styles.emptyTitle}>Nenhum gasto em {MONTHS_PT[selectedMonth]}</Text>
             <Text style={styles.emptySubtitle}>
               Toque no botão + para registrar seu primeiro gasto
             </Text>
@@ -159,7 +197,6 @@ export default function HomeScreen({ navigation }: Props) {
         }
       />
 
-      {/* FAB */}
       <TouchableOpacity
         style={styles.fab}
         onPress={() => navigation.navigate('Form', undefined)}
@@ -183,20 +220,50 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
+  // Month selector
+  monthSelector: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  monthArrow: {
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1A1A1A',
+    borderRadius: 10,
+  },
+  monthArrowDisabled: {
+    opacity: 0.3,
+  },
+  monthArrowText: {
+    color: '#00D4A1',
+    fontSize: 24,
+    lineHeight: 28,
+    fontWeight: '300',
+  },
+  monthArrowTextDisabled: {
+    color: '#555',
+  },
+  monthLabel: {
+    color: '#F5F5F5',
+    fontSize: 17,
+    fontWeight: '700',
+  },
+
   // Summary card
   summaryCard: {
     marginHorizontal: 16,
-    marginTop: 16,
     marginBottom: 20,
     padding: 20,
     backgroundColor: '#1A1A1A',
     borderRadius: 16,
     borderLeftWidth: 3,
     borderLeftColor: '#00D4A1',
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
   },
   summaryLabel: {
     color: '#666',
@@ -208,27 +275,13 @@ const styles = StyleSheet.create({
   },
   summaryAmount: {
     color: '#F5F5F5',
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '700',
-  },
-  summaryAmountSecondary: {
-    color: '#888',
-    fontSize: 20,
-    fontWeight: '600',
-  },
-  summaryRight: {
-    marginLeft: 20,
-  },
-  divider: {
-    width: 1,
-    height: 40,
-    backgroundColor: '#2A2A2A',
-    marginLeft: 20,
+    marginBottom: 8,
   },
   summaryCount: {
     color: '#555',
     fontSize: 12,
-    marginTop: 12,
   },
 
   // List
