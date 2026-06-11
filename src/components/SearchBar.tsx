@@ -58,26 +58,28 @@ export default function SearchBar({
       </View>
 
       {/* Category filter chips */}
-      {showCategories && <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow} contentContainerStyle={{ gap: 6, paddingHorizontal: 16 }}>
-        <TouchableOpacity
-          style={[styles.chip, selectedCategory === null && styles.chipActive]}
-          onPress={() => onCategoryChange(null)}
-        >
-          <Text style={[styles.chipText, selectedCategory === null && styles.chipTextActive]}>Todas</Text>
-        </TouchableOpacity>
-        {categories.map(cat => (
+      {showCategories && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow} contentContainerStyle={{ gap: 6, paddingHorizontal: 16 }}>
           <TouchableOpacity
-            key={cat.id}
-            style={[styles.chip, selectedCategory === cat.name && styles.chipActive]}
-            onPress={() => onCategoryChange(selectedCategory === cat.name ? null : cat.name)}
+            style={[styles.chip, selectedCategory === null && styles.chipActive]}
+            onPress={() => onCategoryChange(null)}
           >
-            <Text style={styles.chipIcon}>{cat.icon}</Text>
-            <Text style={[styles.chipText, selectedCategory === cat.name && styles.chipTextActive]}>
-              {cat.name}
-            </Text>
+            <Text style={[styles.chipText, selectedCategory === null && styles.chipTextActive]}>Todas</Text>
           </TouchableOpacity>
-        ))}
-      </ScrollView>}
+          {categories.map(cat => (
+            <TouchableOpacity
+              key={cat.id}
+              style={[styles.chip, selectedCategory === cat.name && styles.chipActive]}
+              onPress={() => onCategoryChange(selectedCategory === cat.name ? null : cat.name)}
+            >
+              <Text style={styles.chipIcon}>{cat.icon}</Text>
+              <Text style={[styles.chipText, selectedCategory === cat.name && styles.chipTextActive]}>
+                {cat.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      )}
 
       {/* Sort chips */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.sortRow} contentContainerStyle={{ gap: 6, paddingHorizontal: 16 }}>
