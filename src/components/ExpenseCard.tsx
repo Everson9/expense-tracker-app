@@ -46,9 +46,10 @@ export default function ExpenseCard({ expense, onEdit, onDelete }: Props) {
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1}>
-          {expense.title}
-        </Text>
+        <View style={styles.titleRow}>
+          <Text style={styles.title} numberOfLines={1}>{expense.title}</Text>
+          {expense.recorrente && <Text style={styles.recorrenteBadge}>🔁</Text>}
+        </View>
         <View style={styles.metaRow}>
           {isReceita ? (
             <Text style={[styles.category, { color }]}>receita</Text>
@@ -112,10 +113,19 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
   },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   title: {
     color: '#F5F5F5',
     fontSize: 15,
     fontWeight: '600',
+    flex: 1,
+  },
+  recorrenteBadge: {
+    fontSize: 12,
   },
   metaRow: {
     flexDirection: 'row',

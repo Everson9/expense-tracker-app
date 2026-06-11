@@ -44,10 +44,52 @@ export default function HomeScreen({ navigation }: Props) {
     });
   }, [navigation, signOut]);
 
+  const generateRecurring = async (all: typeof expenses) => {
+    const cm = now.getMonth();
+    const cy = now.getFullYear();
+
+    const templates = all.filter(e => e.recorrente && !e.recorrente_id);
+    const copiedIds = new Set(
+      all
+        .filter(e => {
+          if (!e.recorrente_id) return false;
+          const d = new Date(e.date + 'T12:00:00');
+          return d.getMonth() === cm && d.getFullYear() === cy;
+        })
+        .map(e => e.recorrente_id)
+    );
+
+    const toGenerate = templates.filter(t => {
+      const td = new Date(t.date + 'T12:00:00');
+      if (td.getMonth() === cm && td.getFullYear() === cy) return false;
+      return !copiedIds.has(t.id);
+    });
+
+    if (toGenerate.length === 0) return;
+
+    const copyDate = `${cy}-${String(cm + 1).padStart(2, '0')}-01`;
+    await Promise.all(
+      toGenerate.map(t =>
+        expenseService.create({
+          title: t.title,
+          amount: t.amount,
+          category: t.category,
+          type: t.type,
+          recorrente: false,
+          recorrente_id: t.id,
+          date: copyDate,
+          description: t.description,
+        })
+      )
+    );
+  };
+
   const fetchExpenses = async () => {
     try {
       const data = await expenseService.getAll();
-      setExpenses(data);
+      await generateRecurring(data);
+      const fresh = await expenseService.getAll();
+      setExpenses(fresh);
     } catch {
       Alert.alert('Erro', 'Não foi possível carregar os gastos.');
     } finally {

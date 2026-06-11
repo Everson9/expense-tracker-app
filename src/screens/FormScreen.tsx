@@ -46,7 +46,10 @@ export default function FormScreen({ navigation, route }: Props) {
   const [category,    setCategory]    = useState<Category>(editing?.category ?? 'outros');
   const [date,        setDate]        = useState(editing?.date ?? todayISO);
   const [description, setDescription] = useState(editing?.description ?? '');
+  const [recorrente,  setRecorrente]  = useState(editing?.recorrente ?? false);
   const [loading,     setLoading]     = useState(false);
+
+  const isTemplate = !!editing?.recorrente && !editing?.recorrente_id;
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -67,6 +70,7 @@ export default function FormScreen({ navigation, route }: Props) {
       amount:      parsedAmount,
       category,
       type,
+      recorrente,
       date,
       description: description.trim() || undefined,
     };
@@ -186,6 +190,23 @@ export default function FormScreen({ navigation, route }: Props) {
               })}
             </View>
           </View>
+        )}
+
+        {/* Recorrente — só para novos ou templates */}
+        {(!editing || isTemplate) && (
+          <TouchableOpacity
+            style={[styles.recorrenteRow, recorrente && styles.recorrenteRowActive]}
+            onPress={() => setRecorrente(v => !v)}
+            activeOpacity={0.7}
+          >
+            <View>
+              <Text style={styles.recorrenteLabel}>🔁 Repetir todo mês</Text>
+              <Text style={styles.recorrenteHint}>Gera automaticamente nos próximos meses</Text>
+            </View>
+            <View style={[styles.toggle, recorrente && styles.toggleActive]}>
+              <View style={[styles.toggleThumb, recorrente && styles.toggleThumbActive]} />
+            </View>
+          </TouchableOpacity>
         )}
 
         {/* Observação */}
@@ -342,5 +363,53 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.3,
+  },
+
+  // Recorrente toggle
+  recorrenteRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#1A1A1A',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 22,
+    borderWidth: 1,
+    borderColor: '#252525',
+  },
+  recorrenteRowActive: {
+    borderColor: '#00D4A1',
+    backgroundColor: '#00D4A108',
+  },
+  recorrenteLabel: {
+    color: '#F5F5F5',
+    fontSize: 15,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  recorrenteHint: {
+    color: '#555',
+    fontSize: 12,
+  },
+  toggle: {
+    width: 44,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#2A2A2A',
+    justifyContent: 'center',
+    paddingHorizontal: 2,
+  },
+  toggleActive: {
+    backgroundColor: '#00D4A1',
+  },
+  toggleThumb: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#555',
+  },
+  toggleThumbActive: {
+    backgroundColor: '#0D0D0D',
+    alignSelf: 'flex-end',
   },
 });
