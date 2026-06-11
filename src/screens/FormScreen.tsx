@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import { AppStackParamList } from '../types/navigation';
 import { TransactionType } from '../types/expense';
 import { expenseService } from '../services/api';
 import { useCategories } from '../contexts/CategoryContext';
+import { Expense } from '../types/expense';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Form'>;
 
@@ -39,6 +40,36 @@ export default function FormScreen({ navigation, route }: Props) {
   const [recorrente,  setRecorrente]  = useState(editing?.recorrente ?? false);
   const [parcelas,    setParcelas]    = useState(editing?.parcelas ? String(editing.parcelas) : '1');
   const [loading,     setLoading]     = useState(false);
+  const [suggestion,  setSuggestion]  = useState<{ category: string; icon: string } | null>(null);
+  const [allExpenses, setAllExpenses] = useState<Expense[]>([]);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Load history once for suggestions
+  useEffect(() => {
+    if (!editing) expenseService.getAll().then(setAllExpenses).catch(() => {});
+  }, []);
+
+  // Suggest category based on title history
+  useEffect(() => {
+    if (editing || type === 'receita') { setSuggestion(null); return; }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const q = title.trim().toLowerCase();
+      if (q.length < 3) { setSuggestion(null); return; }
+      const scores: Record<string, number> = {};
+      allExpenses
+        .filter(e => e.type === 'despesa' && e.title.toLowerCase().includes(q))
+        .forEach(e => { scores[e.category] = (scores[e.category] ?? 0) + 1; });
+      const top = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
+      if (!top) { setSuggestion(null); return; }
+      const cat = categories.find(c => c.name === top[0]);
+      if (cat && cat.name !== effectiveCategory) {
+        setSuggestion({ category: cat.name, icon: cat.icon });
+      } else {
+        setSuggestion(null);
+      }
+    }, 400);
+  }, [title, allExpenses, type]);
 
   const isTemplate = !!editing?.recorrente && !editing?.recorrente_id;
   const isParcela  = !!editing?.parcela_grupo_id;
@@ -159,6 +190,20 @@ export default function FormScreen({ navigation, route }: Props) {
             maxLength={100}
           />
         </View>
+
+        {/* Category suggestion */}
+        {suggestion && (
+          <TouchableOpacity
+            style={styles.suggestionBanner}
+            onPress={() => { setCategory(suggestion.category); setSuggestion(null); }}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.suggestionText}>
+              {suggestion.icon} Categoria sugerida: <Text style={styles.suggestionBold}>{suggestion.category}</Text>
+            </Text>
+            <Text style={styles.suggestionAction}>Aplicar →</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Valor */}
         <View style={styles.field}>
@@ -392,6 +437,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '500',
   },
+
+  suggestionBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#00D4A115',
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: '#00D4A140',
+    marginBottom: 20,
+  },
+  suggestionText: { color: '#00D4A1', fontSize: 13, flex: 1 },
+  suggestionBold: { fontWeight: '700' },
+  suggestionAction: { color: '#00D4A1', fontSize: 13, fontWeight: '700', marginLeft: 8 },
 
   saveBtn: {
     backgroundColor: '#FF6B6B',
