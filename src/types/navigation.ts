@@ -15,6 +15,7 @@ export type TabParamList = {
   Gastos:    undefined;
   Receitas:  undefined;
   Gráficos:  undefined;
+  Metas:     undefined;
   Perfil:    undefined;
 };
 

@@ -8,6 +8,7 @@ import GastosScreen from '../screens/GastosScreen';
 import ReceitasScreen from '../screens/ReceitasScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import GraficosScreen from '../screens/GraficosScreen';
+import MetasScreen from '../screens/MetasScreen';
 import FormScreen from '../screens/FormScreen';
 
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -79,6 +80,19 @@ export default function TabNavigator() {
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>📊</Text>,
           headerShown: true,
           headerTitle: 'Gráficos',
+          headerStyle: { backgroundColor: '#0D0D0D' },
+          headerTintColor: '#F5F5F5',
+          headerTitleStyle: { fontWeight: '700' as const },
+          headerShadowVisible: false,
+        }}
+      />
+      <Tab.Screen
+        name="Metas"
+        component={MetasScreen}
+        options={{
+          tabBarIcon: ({ color }) => <Text style={{ fontSize: 20, color }}>🎯</Text>,
+          headerShown: true,
+          headerTitle: 'Metas',
           headerStyle: { backgroundColor: '#0D0D0D' },
           headerTintColor: '#F5F5F5',
           headerTitleStyle: { fontWeight: '700' as const },

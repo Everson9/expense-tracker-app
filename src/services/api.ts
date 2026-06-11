@@ -67,6 +67,34 @@ export interface AppCategory {
   icon: string;
 }
 
+export interface Goal {
+  id: string;
+  title: string;
+  target_amount: number;
+  current_amount: number;
+  target_date?: string | null;
+  completed: boolean;
+  created_at?: string;
+}
+
+export const goalService = {
+  getAll: async (): Promise<Goal[]> => {
+    const { data } = await api.get<Goal[]>('/goals');
+    return data;
+  },
+  create: async (payload: Omit<Goal, 'id' | 'completed' | 'created_at'>): Promise<Goal> => {
+    const { data } = await api.post<Goal>('/goals', payload);
+    return data;
+  },
+  update: async (id: string, payload: Partial<Goal>): Promise<Goal> => {
+    const { data } = await api.put<Goal>(`/goals/${id}`, payload);
+    return data;
+  },
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/goals/${id}`);
+  },
+};
+
 export const categoryService = {
   getAll: async (): Promise<AppCategory[]> => {
     const { data } = await api.get<AppCategory[]>('/categories');
