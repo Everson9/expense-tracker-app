@@ -15,10 +15,13 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../types/navigation';
 import { supabase } from '../lib/supabase';
+import { useTheme, AppTheme } from '../contexts/ThemeContext';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const [email, setEmail]           = useState('');
   const [password, setPassword]     = useState('');
   const [showPassword, setShowPass] = useState(false);
@@ -122,7 +125,7 @@ export default function LoginScreen({ navigation }: Props) {
             activeOpacity={0.85}
           >
             {loading
-              ? <ActivityIndicator color="#0D0D0D" />
+              ? <ActivityIndicator color={theme.bg} />
               : <Text style={styles.buttonText}>Entrar</Text>
             }
           </TouchableOpacity>
@@ -143,10 +146,11 @@ export default function LoginScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(t: AppTheme) {
+  return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D0D0D',
+    backgroundColor: t.bg,
   },
   scroll: {
     flexGrow: 1,
@@ -160,13 +164,13 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   logoTitle: {
-    color: '#F5F5F5',
+    color: t.text,
     fontSize: 36,
     fontWeight: '700',
     letterSpacing: -0.5,
   },
   logoSubtitle: {
-    color: '#00D4A1',
+    color: t.accent,
     fontSize: 36,
     fontWeight: '700',
     letterSpacing: -0.5,
@@ -185,37 +189,37 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   inputLabel: {
-    color: '#666',
+    color: t.textMuted,
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
   input: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: t.card,
     borderRadius: 12,
     paddingHorizontal: 16,
     paddingVertical: 15,
-    color: '#F5F5F5',
+    color: t.text,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: t.border,
   },
 
   // Password
   passwordRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: t.card,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#2A2A2A',
+    borderColor: t.border,
   },
   passwordInput: {
     flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 15,
-    color: '#F5F5F5',
+    color: t.text,
     fontSize: 16,
   },
   eyeBtn: {
@@ -228,7 +232,7 @@ const styles = StyleSheet.create({
 
   // Button
   button: {
-    backgroundColor: '#00D4A1',
+    backgroundColor: t.accent,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
@@ -238,7 +242,7 @@ const styles = StyleSheet.create({
     opacity: 0.6,
   },
   buttonText: {
-    color: '#0D0D0D',
+    color: t.bg,
     fontSize: 16,
     fontWeight: '700',
   },
@@ -247,11 +251,12 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   linkText: {
-    color: '#555',
+    color: t.textMuted,
     fontSize: 14,
   },
   linkHighlight: {
-    color: '#00D4A1',
+    color: t.accent,
     fontWeight: '600',
   },
-});
+  });
+}

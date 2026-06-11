@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Expense, Category } from '../types/expense';
+import { useTheme, AppTheme } from '../contexts/ThemeContext';
 
 const CATEGORY_COLORS: Record<Category, string> = {
   alimentação: '#FF9F43',
@@ -27,8 +28,10 @@ interface Props {
 }
 
 export default function ExpenseCard({ expense, onEdit, onDelete }: Props) {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const isReceita = expense.type === 'receita';
-  const color = isReceita ? '#00D4A1' : (CATEGORY_COLORS[expense.category] ?? '#A4B0BD');
+  const color = isReceita ? theme.accent : (CATEGORY_COLORS[expense.category] ?? '#A4B0BD');
   const icon  = isReceita ? '💰' : (CATEGORY_ICONS[expense.category] ?? '📦');
 
   const formattedDate = new Date(expense.date + 'T12:00:00').toLocaleDateString('pt-BR');
@@ -72,7 +75,7 @@ export default function ExpenseCard({ expense, onEdit, onDelete }: Props) {
       </View>
 
       <View style={styles.right}>
-        <Text style={[styles.amount, { color: isReceita ? '#00D4A1' : '#FF6B6B' }]}>
+        <Text style={[styles.amount, { color: isReceita ? theme.accent : theme.danger }]}>
           {isReceita ? '+' : '-'}{formattedAmount}
         </Text>
         <View style={styles.actions}>
@@ -88,10 +91,11 @@ export default function ExpenseCard({ expense, onEdit, onDelete }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(th: AppTheme) {
+  return StyleSheet.create({
   card: {
     flexDirection: 'row',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: th.card,
     borderRadius: 12,
     marginBottom: 10,
     alignItems: 'center',
@@ -124,7 +128,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   title: {
-    color: '#F5F5F5',
+    color: th.text,
     fontSize: 15,
     fontWeight: '600',
     flex: 1,
@@ -133,13 +137,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   parcelaBadge: {
-    backgroundColor: '#2A2A2A',
+    backgroundColor: th.border,
     borderRadius: 6,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
   parcelaBadgeText: {
-    color: '#888',
+    color: th.textMuted,
     fontSize: 11,
     fontWeight: '600',
   },
@@ -159,11 +163,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   date: {
-    color: '#666',
+    color: th.textMuted,
     fontSize: 12,
   },
   description: {
-    color: '#555',
+    color: th.textMuted,
     fontSize: 12,
     marginTop: 3,
   },
@@ -183,4 +187,5 @@ const styles = StyleSheet.create({
   actionIcon: {
     fontSize: 15,
   },
-});
+  });
+}

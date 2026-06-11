@@ -17,6 +17,7 @@ import { TransactionType } from '../types/expense';
 import { expenseService } from '../services/api';
 import { useCategories } from '../contexts/CategoryContext';
 import { Expense } from '../types/expense';
+import { useTheme, AppTheme } from '../contexts/ThemeContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Form'>;
 
@@ -26,6 +27,8 @@ const CAT_COLORS = [
 ];
 
 export default function FormScreen({ navigation, route }: Props) {
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const editing = route.params?.expense;
   const defaultType = route.params?.defaultType;
   const todayISO = new Date().toISOString().split('T')[0];
@@ -329,7 +332,7 @@ export default function FormScreen({ navigation, route }: Props) {
           activeOpacity={0.85}
         >
           {loading ? (
-            <ActivityIndicator color="#0D0D0D" />
+            <ActivityIndicator color={theme.bg} />
           ) : (
             <Text style={styles.saveBtnText}>
               {editing
@@ -343,10 +346,11 @@ export default function FormScreen({ navigation, route }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
+function makeStyles(th: AppTheme) {
+  return StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0D0D0D',
+    backgroundColor: th.bg,
   },
   scroll: {
     padding: 20,
@@ -356,7 +360,7 @@ const styles = StyleSheet.create({
   // Type toggle
   typeToggle: {
     flexDirection: 'row',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: th.card,
     borderRadius: 12,
     padding: 4,
     marginBottom: 24,
@@ -369,29 +373,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   typeBtnActiveDespesa: {
-    backgroundColor: '#FF6B6B22',
+    backgroundColor: th.danger + '22',
     borderWidth: 1,
-    borderColor: '#FF6B6B',
+    borderColor: th.danger,
   },
   typeBtnActiveReceita: {
-    backgroundColor: '#00D4A122',
+    backgroundColor: th.accent + '22',
     borderWidth: 1,
-    borderColor: '#00D4A1',
+    borderColor: th.accent,
   },
   typeBtnText: {
-    color: '#555',
+    color: th.textMuted,
     fontSize: 14,
     fontWeight: '600',
   },
   typeBtnTextActive: {
-    color: '#F5F5F5',
+    color: th.text,
   },
 
   field: {
     marginBottom: 22,
   },
   label: {
-    color: '#666',
+    color: th.textMuted,
     fontSize: 11,
     fontWeight: '700',
     textTransform: 'uppercase',
@@ -399,11 +403,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   input: {
-    backgroundColor: '#1A1A1A',
+    backgroundColor: th.card,
     borderRadius: 10,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    color: '#F5F5F5',
+    color: th.text,
     fontSize: 16,
     borderWidth: 1,
     borderColor: '#252525',
@@ -426,14 +430,14 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#252525',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: th.card,
     gap: 6,
   },
   categoryBtnIcon: {
     fontSize: 15,
   },
   categoryBtnLabel: {
-    color: '#666',
+    color: th.textMuted,
     fontSize: 13,
     fontWeight: '500',
   },
@@ -442,33 +446,33 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#00D4A115',
+    backgroundColor: th.accent + '15',
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 10,
     borderWidth: 1,
-    borderColor: '#00D4A140',
+    borderColor: th.accent + '40',
     marginBottom: 20,
   },
-  suggestionText: { color: '#00D4A1', fontSize: 13, flex: 1 },
+  suggestionText: { color: th.accent, fontSize: 13, flex: 1 },
   suggestionBold: { fontWeight: '700' },
-  suggestionAction: { color: '#00D4A1', fontSize: 13, fontWeight: '700', marginLeft: 8 },
+  suggestionAction: { color: th.accent, fontSize: 13, fontWeight: '700', marginLeft: 8 },
 
   saveBtn: {
-    backgroundColor: '#FF6B6B',
+    backgroundColor: th.danger,
     borderRadius: 12,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 8,
   },
   saveBtnReceita: {
-    backgroundColor: '#00D4A1',
+    backgroundColor: th.accent,
   },
   saveBtnDisabled: {
     opacity: 0.55,
   },
   saveBtnText: {
-    color: '#0D0D0D',
+    color: th.bg,
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.3,
@@ -478,7 +482,7 @@ const styles = StyleSheet.create({
   parcelasRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: th.card,
     borderRadius: 10,
     borderWidth: 1,
     borderColor: '#252525',
@@ -492,13 +496,13 @@ const styles = StyleSheet.create({
     backgroundColor: '#252525',
   },
   parcelasBtnText: {
-    color: '#F5F5F5',
+    color: th.text,
     fontSize: 20,
     fontWeight: '300',
   },
   parcelasValue: {
     flex: 1,
-    color: '#F5F5F5',
+    color: th.text,
     fontSize: 15,
     fontWeight: '600',
     textAlign: 'center',
@@ -509,7 +513,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#1A1A1A',
+    backgroundColor: th.card,
     borderRadius: 12,
     padding: 16,
     marginBottom: 22,
@@ -517,38 +521,39 @@ const styles = StyleSheet.create({
     borderColor: '#252525',
   },
   recorrenteRowActive: {
-    borderColor: '#00D4A1',
-    backgroundColor: '#00D4A108',
+    borderColor: th.accent,
+    backgroundColor: th.accent + '08',
   },
   recorrenteLabel: {
-    color: '#F5F5F5',
+    color: th.text,
     fontSize: 15,
     fontWeight: '600',
     marginBottom: 2,
   },
   recorrenteHint: {
-    color: '#555',
+    color: th.textMuted,
     fontSize: 12,
   },
   toggle: {
     width: 44,
     height: 24,
     borderRadius: 12,
-    backgroundColor: '#2A2A2A',
+    backgroundColor: th.border,
     justifyContent: 'center',
     paddingHorizontal: 2,
   },
   toggleActive: {
-    backgroundColor: '#00D4A1',
+    backgroundColor: th.accent,
   },
   toggleThumb: {
     width: 20,
     height: 20,
     borderRadius: 10,
-    backgroundColor: '#555',
+    backgroundColor: th.textMuted,
   },
   toggleThumbActive: {
-    backgroundColor: '#0D0D0D',
+    backgroundColor: th.bg,
     alignSelf: 'flex-end',
   },
-});
+  });
+}

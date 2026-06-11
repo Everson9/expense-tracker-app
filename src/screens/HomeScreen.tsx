@@ -12,6 +12,7 @@ import { expenseService, budgetService, Budget } from '../services/api';
 import ExpenseCard from '../components/ExpenseCard';
 import { useMonth } from '../contexts/MonthContext';
 import { useCategories } from '../contexts/CategoryContext';
+import { useTheme, AppTheme } from '../contexts/ThemeContext';
 
 type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
 
@@ -23,6 +24,8 @@ const MONTHS_PT = [
 export default function HomeScreen({ navigation }: Props) {
   const { selectedMonth, selectedYear, goToPrev, goToNext } = useMonth();
   const { categories } = useCategories();
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
   const [loading, setLoading] = useState(true);
@@ -174,8 +177,8 @@ export default function HomeScreen({ navigation }: Props) {
           const limit = budgetMap[cat.name];
           const ratio = limit ? Math.min(spent / limit, 1) : 0;
           const pct = limit ? (spent / limit) * 100 : null;
-          let barColor = '#00D4A1';
-          if (pct !== null && pct >= 100) barColor = '#FF6B6B';
+          let barColor = theme.accent;
+          if (pct !== null && pct >= 100) barColor = theme.danger;
           else if (pct !== null && pct >= 80) barColor = '#FFB347';
 
           return (
@@ -207,7 +210,7 @@ export default function HomeScreen({ navigation }: Props) {
   };
 
   if (loading) {
-    return <View style={styles.centered}><ActivityIndicator size="large" color="#00D4A1" /></View>;
+    return <View style={styles.centered}><ActivityIndicator size="large" color={theme.accent} /></View>;
   }
 
   return (
@@ -224,7 +227,7 @@ export default function HomeScreen({ navigation }: Props) {
         )}
         contentContainerStyle={monthExpenses.length === 0 ? styles.emptyContainer : styles.list}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor="#00D4A1" />
+          <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchData(); }} tintColor={theme.accent} />
         }
         ListHeaderComponent={
           <>
@@ -242,17 +245,17 @@ export default function HomeScreen({ navigation }: Props) {
               <View style={styles.summaryRow}>
                 <View style={styles.summaryCol}>
                   <Text style={styles.summaryLabel}>Despesas</Text>
-                  <Text style={[styles.summaryAmount, { color: '#FF6B6B' }]}>{formatBRL(totalDespesas)}</Text>
+                  <Text style={[styles.summaryAmount, { color: theme.danger }]}>{formatBRL(totalDespesas)}</Text>
                 </View>
                 <View style={styles.summaryDivider} />
                 <View style={styles.summaryCol}>
                   <Text style={styles.summaryLabel}>Receitas</Text>
-                  <Text style={[styles.summaryAmount, { color: '#00D4A1' }]}>{formatBRL(totalReceitas)}</Text>
+                  <Text style={[styles.summaryAmount, { color: theme.accent }]}>{formatBRL(totalReceitas)}</Text>
                 </View>
               </View>
               <View style={styles.saldoRow}>
                 <Text style={styles.summaryLabel}>Saldo</Text>
-                <Text style={[styles.saldoAmount, { color: saldo >= 0 ? '#00D4A1' : '#FF6B6B' }]}>
+                <Text style={[styles.saldoAmount, { color: saldo >= 0 ? theme.accent : theme.danger }]}>
                   {saldo >= 0 ? '+' : ''}{formatBRL(saldo)}
                 </Text>
               </View>
@@ -287,13 +290,13 @@ export default function HomeScreen({ navigation }: Props) {
               value={budgetInput}
               onChangeText={setBudgetInput}
               placeholder="Ex: 500,00"
-              placeholderTextColor="#555"
+              placeholderTextColor={theme.textMuted}
               keyboardType="decimal-pad"
               autoFocus
               selectTextOnFocus
             />
             <TouchableOpacity style={[styles.modalBtn, budgetSaving && { opacity: 0.6 }]} onPress={saveBudget} disabled={budgetSaving}>
-              {budgetSaving ? <ActivityIndicator color="#0D0D0D" /> : <Text style={styles.modalBtnText}>Salvar limite</Text>}
+              {budgetSaving ? <ActivityIndicator color={theme.bg} /> : <Text style={styles.modalBtnText}>Salvar limite</Text>}
             </TouchableOpacity>
             {budgetMap[budgetCategoryName!] !== undefined && (
               <TouchableOpacity style={styles.modalBtnRemove} onPress={removeBudget} disabled={budgetSaving}>
@@ -310,59 +313,61 @@ export default function HomeScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0D0D0D' },
-  centered: { flex: 1, backgroundColor: '#0D0D0D', justifyContent: 'center', alignItems: 'center' },
-  monthSelector: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 16, marginTop: 16, marginBottom: 12 },
-  monthArrow: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1A1A1A', borderRadius: 10 },
-  monthArrowDisabled: { opacity: 0.3 },
-  monthArrowText: { color: '#00D4A1', fontSize: 24, lineHeight: 28, fontWeight: '300' },
-  monthArrowTextDisabled: { color: '#555' },
-  monthLabel: { color: '#F5F5F5', fontSize: 17, fontWeight: '700' },
-  summaryCard: { marginHorizontal: 16, marginBottom: 20, padding: 20, backgroundColor: '#1A1A1A', borderRadius: 16, borderLeftWidth: 3, borderLeftColor: '#00D4A1', gap: 16 },
-  summaryRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  summaryCol: { flex: 1 },
-  summaryDivider: { width: 1, height: 40, backgroundColor: '#2A2A2A' },
-  summaryLabel: { color: '#666', fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
-  summaryAmount: { fontSize: 20, fontWeight: '700' },
-  saldoRow: { borderTopWidth: 1, borderTopColor: '#2A2A2A', paddingTop: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  saldoAmount: { fontSize: 22, fontWeight: '700' },
-  summaryCount: { color: '#555', fontSize: 12 },
-  budgetSection: { marginHorizontal: 16, marginBottom: 20, backgroundColor: '#1A1A1A', borderRadius: 16, overflow: 'hidden' },
-  sectionTitle: { color: '#666', fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
-  categoryRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#222' },
-  categoryLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
-  categoryIcon: { fontSize: 22 },
-  categoryInfo: { flex: 1 },
-  categoryNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
-  categoryName: { color: '#F5F5F5', fontSize: 14, fontWeight: '600', textTransform: 'capitalize' },
-  alertBadge: { backgroundColor: '#FF6B6B33', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
-  alertBadgeWarn: { backgroundColor: '#FFB34733' },
-  alertBadgeText: { color: '#FF6B6B', fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
-  progressTrack: { height: 5, backgroundColor: '#2A2A2A', borderRadius: 3, overflow: 'hidden', marginBottom: 4 },
-  progressBar: { height: 5, borderRadius: 3 },
-  categoryAmounts: { color: '#F5F5F5', fontSize: 13, fontWeight: '600' },
-  categoryLimit: { color: '#555', fontWeight: '400' },
-  categorySpentOnly: { color: '#888', fontSize: 12 },
-  categoryEdit: { fontSize: 14, marginLeft: 8 },
-  listSectionTitle: { color: '#666', fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10, marginHorizontal: 16 },
-  list: { paddingHorizontal: 16, paddingBottom: 100 },
-  emptyContainer: { flexGrow: 1, paddingHorizontal: 16 },
-  emptyState: { alignItems: 'center', paddingTop: 60 },
-  emptyIcon: { fontSize: 52, marginBottom: 16 },
-  emptyTitle: { color: '#F5F5F5', fontSize: 18, fontWeight: '600', marginBottom: 8 },
-  emptySubtitle: { color: '#555', fontSize: 14, textAlign: 'center', paddingHorizontal: 32, lineHeight: 20 },
-  modalOverlay: { flex: 1, justifyContent: 'flex-end' },
-  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
-  modalSheet: { backgroundColor: '#1A1A1A', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, gap: 12 },
-  modalHandle: { width: 40, height: 4, backgroundColor: '#333', borderRadius: 2, alignSelf: 'center', marginBottom: 8 },
-  modalTitle: { color: '#F5F5F5', fontSize: 20, fontWeight: '700', textTransform: 'capitalize' },
-  modalSubtitle: { color: '#666', fontSize: 13, marginBottom: 4 },
-  modalInput: { backgroundColor: '#111', borderRadius: 12, padding: 16, color: '#F5F5F5', fontSize: 24, fontWeight: '700', borderWidth: 1, borderColor: '#2A2A2A' },
-  modalBtn: { backgroundColor: '#00D4A1', borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 4 },
-  modalBtnText: { color: '#0D0D0D', fontSize: 16, fontWeight: '700' },
-  modalBtnRemove: { borderRadius: 12, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: '#FF6B6B44' },
-  modalBtnRemoveText: { color: '#FF6B6B', fontSize: 15, fontWeight: '600' },
-  modalBtnCancel: { padding: 12, alignItems: 'center' },
-  modalBtnCancelText: { color: '#555', fontSize: 14 },
-});
+function makeStyles(t: AppTheme) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: t.bg },
+    centered: { flex: 1, backgroundColor: t.bg, justifyContent: 'center', alignItems: 'center' },
+    monthSelector: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginHorizontal: 16, marginTop: 16, marginBottom: 12 },
+    monthArrow: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: t.card, borderRadius: 10 },
+    monthArrowDisabled: { opacity: 0.3 },
+    monthArrowText: { color: t.accent, fontSize: 24, lineHeight: 28, fontWeight: '300' },
+    monthArrowTextDisabled: { color: t.textMuted },
+    monthLabel: { color: t.text, fontSize: 17, fontWeight: '700' },
+    summaryCard: { marginHorizontal: 16, marginBottom: 20, padding: 20, backgroundColor: t.card, borderRadius: 16, borderLeftWidth: 3, borderLeftColor: t.accent, gap: 16 },
+    summaryRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+    summaryCol: { flex: 1 },
+    summaryDivider: { width: 1, height: 40, backgroundColor: t.border },
+    summaryLabel: { color: t.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
+    summaryAmount: { fontSize: 20, fontWeight: '700' },
+    saldoRow: { borderTopWidth: 1, borderTopColor: t.border, paddingTop: 14, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    saldoAmount: { fontSize: 22, fontWeight: '700' },
+    summaryCount: { color: t.textMuted, fontSize: 12 },
+    budgetSection: { marginHorizontal: 16, marginBottom: 20, backgroundColor: t.card, borderRadius: 16, overflow: 'hidden' },
+    sectionTitle: { color: t.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 12 },
+    categoryRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderTopWidth: 1, borderTopColor: '#222' },
+    categoryLeft: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+    categoryIcon: { fontSize: 22 },
+    categoryInfo: { flex: 1 },
+    categoryNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
+    categoryName: { color: t.text, fontSize: 14, fontWeight: '600', textTransform: 'capitalize' },
+    alertBadge: { backgroundColor: t.danger + '33', borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2 },
+    alertBadgeWarn: { backgroundColor: '#FFB34733' },
+    alertBadgeText: { color: t.danger, fontSize: 10, fontWeight: '700', textTransform: 'uppercase' },
+    progressTrack: { height: 5, backgroundColor: t.border, borderRadius: 3, overflow: 'hidden', marginBottom: 4 },
+    progressBar: { height: 5, borderRadius: 3 },
+    categoryAmounts: { color: t.text, fontSize: 13, fontWeight: '600' },
+    categoryLimit: { color: t.textMuted, fontWeight: '400' },
+    categorySpentOnly: { color: '#888', fontSize: 12 },
+    categoryEdit: { fontSize: 14, marginLeft: 8 },
+    listSectionTitle: { color: t.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10, marginHorizontal: 16 },
+    list: { paddingHorizontal: 16, paddingBottom: 100 },
+    emptyContainer: { flexGrow: 1, paddingHorizontal: 16 },
+    emptyState: { alignItems: 'center', paddingTop: 60 },
+    emptyIcon: { fontSize: 52, marginBottom: 16 },
+    emptyTitle: { color: t.text, fontSize: 18, fontWeight: '600', marginBottom: 8 },
+    emptySubtitle: { color: t.textMuted, fontSize: 14, textAlign: 'center', paddingHorizontal: 32, lineHeight: 20 },
+    modalOverlay: { flex: 1, justifyContent: 'flex-end' },
+    modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
+    modalSheet: { backgroundColor: t.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, gap: 12 },
+    modalHandle: { width: 40, height: 4, backgroundColor: '#333', borderRadius: 2, alignSelf: 'center', marginBottom: 8 },
+    modalTitle: { color: t.text, fontSize: 20, fontWeight: '700', textTransform: 'capitalize' },
+    modalSubtitle: { color: t.textMuted, fontSize: 13, marginBottom: 4 },
+    modalInput: { backgroundColor: t.bg, borderRadius: 12, padding: 16, color: t.text, fontSize: 24, fontWeight: '700', borderWidth: 1, borderColor: t.border },
+    modalBtn: { backgroundColor: t.accent, borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 4 },
+    modalBtnText: { color: t.bg, fontSize: 16, fontWeight: '700' },
+    modalBtnRemove: { borderRadius: 12, padding: 14, alignItems: 'center', borderWidth: 1, borderColor: t.danger + '44' },
+    modalBtnRemoveText: { color: t.danger, fontSize: 15, fontWeight: '600' },
+    modalBtnCancel: { padding: 12, alignItems: 'center' },
+    modalBtnCancelText: { color: t.textMuted, fontSize: 14 },
+  });
+}

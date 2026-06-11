@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { goalService, Goal } from '../services/api';
+import { useTheme, AppTheme } from '../contexts/ThemeContext';
 
 const formatBRL = (v: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
@@ -13,6 +14,7 @@ const formatBRL = (v: number) =>
 const GOAL_EMOJIS = ['🎯','🏖️','🚗','🏠','📱','✈️','💍','🎓','💪','🐶','🎸','⚽'];
 
 export default function MetasScreen() {
+  const { theme } = useTheme();
   const [goals, setGoals] = useState<Goal[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -112,13 +114,15 @@ export default function MetasScreen() {
   const active = goals.filter(g => !g.completed);
   const completed = goals.filter(g => g.completed);
 
-  if (loading) return <View style={styles.centered}><ActivityIndicator size="large" color="#00D4A1" /></View>;
+  const styles = makeStyles(theme);
+
+  if (loading) return <View style={styles.centered}><ActivityIndicator size="large" color={theme.accent} /></View>;
 
   return (
     <View style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.content}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchGoals(); }} tintColor="#00D4A1" />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchGoals(); }} tintColor={theme.accent} />}
       >
         {/* Header */}
         <View style={styles.headerRow}>
@@ -142,8 +146,8 @@ export default function MetasScreen() {
         {active.map(goal => {
           const pct = Math.min((Number(goal.current_amount) / Number(goal.target_amount)) * 100, 100);
           const remaining = Number(goal.target_amount) - Number(goal.current_amount);
-          let barColor = '#00D4A1';
-          if (pct >= 100) barColor = '#00D4A1';
+          let barColor = theme.accent;
+          if (pct >= 100) barColor = theme.accent;
           else if (pct >= 60) barColor = '#FFB347';
 
           return (
@@ -206,9 +210,9 @@ export default function MetasScreen() {
                   </TouchableOpacity>
                 </View>
                 <View style={styles.progressTrack}>
-                  <View style={[styles.progressBar, { width: '100%', backgroundColor: '#00D4A1' }]} />
+                  <View style={[styles.progressBar, { width: '100%', backgroundColor: theme.accent }]} />
                 </View>
-                <Text style={[styles.pctText, { color: '#00D4A1', marginTop: 8 }]}>
+                <Text style={[styles.pctText, { color: theme.accent, marginTop: 8 }]}>
                   ✅ {formatBRL(Number(goal.target_amount))} atingido
                 </Text>
               </View>
@@ -238,13 +242,13 @@ export default function MetasScreen() {
               ))}
             </ScrollView>
 
-            <TextInput style={styles.modalInput} value={title} onChangeText={setTitle} placeholder="Nome da meta (ex: Viagem)" placeholderTextColor="#555" autoFocus />
-            <TextInput style={styles.modalInput} value={target} onChangeText={setTarget} placeholder="Valor da meta (R$)" placeholderTextColor="#555" keyboardType="decimal-pad" />
-            <TextInput style={styles.modalInput} value={current} onChangeText={setCurrent} placeholder="Já guardei (R$) — opcional" placeholderTextColor="#555" keyboardType="decimal-pad" />
-            <TextInput style={styles.modalInput} value={targetDate} onChangeText={setTargetDate} placeholder="Data limite (AAAA-MM-DD) — opcional" placeholderTextColor="#555" keyboardType="numbers-and-punctuation" maxLength={10} />
+            <TextInput style={styles.modalInput} value={title} onChangeText={setTitle} placeholder="Nome da meta (ex: Viagem)" placeholderTextColor={theme.textMuted} autoFocus />
+            <TextInput style={styles.modalInput} value={target} onChangeText={setTarget} placeholder="Valor da meta (R$)" placeholderTextColor={theme.textMuted} keyboardType="decimal-pad" />
+            <TextInput style={styles.modalInput} value={current} onChangeText={setCurrent} placeholder="Já guardei (R$) — opcional" placeholderTextColor={theme.textMuted} keyboardType="decimal-pad" />
+            <TextInput style={styles.modalInput} value={targetDate} onChangeText={setTargetDate} placeholder="Data limite (AAAA-MM-DD) — opcional" placeholderTextColor={theme.textMuted} keyboardType="numbers-and-punctuation" maxLength={10} />
 
             <TouchableOpacity style={[styles.saveBtn, saving && { opacity: 0.6 }]} onPress={handleSave} disabled={saving}>
-              {saving ? <ActivityIndicator color="#0D0D0D" /> : <Text style={styles.saveBtnText}>Salvar</Text>}
+              {saving ? <ActivityIndicator color={theme.bg} /> : <Text style={styles.saveBtnText}>Salvar</Text>}
             </TouchableOpacity>
             <TouchableOpacity style={styles.cancelBtn} onPress={() => setModalVisible(false)}>
               <Text style={styles.cancelBtnText}>Cancelar</Text>
@@ -256,55 +260,57 @@ export default function MetasScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0D0D0D' },
-  content: { padding: 16, paddingBottom: 60 },
-  centered: { flex: 1, backgroundColor: '#0D0D0D', justifyContent: 'center', alignItems: 'center' },
+function makeStyles(th: AppTheme) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: th.bg },
+    content: { padding: 16, paddingBottom: 60 },
+    centered: { flex: 1, backgroundColor: th.bg, justifyContent: 'center', alignItems: 'center' },
 
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  headerTitle: { color: '#F5F5F5', fontSize: 22, fontWeight: '800' },
-  addBtn: { backgroundColor: '#00D4A120', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 },
-  addBtnText: { color: '#00D4A1', fontSize: 14, fontWeight: '700' },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
+    headerTitle: { color: th.text, fontSize: 22, fontWeight: '800' },
+    addBtn: { backgroundColor: th.accent + '20', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 },
+    addBtnText: { color: th.accent, fontSize: 14, fontWeight: '700' },
 
-  emptyState: { alignItems: 'center', paddingTop: 60, gap: 8 },
-  emptyIcon: { fontSize: 56, marginBottom: 8 },
-  emptyTitle: { color: '#F5F5F5', fontSize: 20, fontWeight: '700' },
-  emptySubtitle: { color: '#555', fontSize: 14, textAlign: 'center', paddingHorizontal: 32 },
-  emptyBtn: { marginTop: 16, backgroundColor: '#00D4A1', borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 },
-  emptyBtnText: { color: '#0D0D0D', fontSize: 15, fontWeight: '700' },
+    emptyState: { alignItems: 'center', paddingTop: 60, gap: 8 },
+    emptyIcon: { fontSize: 56, marginBottom: 8 },
+    emptyTitle: { color: th.text, fontSize: 20, fontWeight: '700' },
+    emptySubtitle: { color: th.textMuted, fontSize: 14, textAlign: 'center', paddingHorizontal: 32 },
+    emptyBtn: { marginTop: 16, backgroundColor: th.accent, borderRadius: 12, paddingHorizontal: 24, paddingVertical: 12 },
+    emptyBtnText: { color: th.bg, fontSize: 15, fontWeight: '700' },
 
-  sectionLabel: { color: '#666', fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12, marginTop: 8 },
+    sectionLabel: { color: th.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12, marginTop: 8 },
 
-  goalCard: { backgroundColor: '#1A1A1A', borderRadius: 16, padding: 18, marginBottom: 14 },
-  goalCardDone: { opacity: 0.6 },
-  goalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
-  goalTitle: { color: '#F5F5F5', fontSize: 17, fontWeight: '700', flex: 1 },
-  goalActions: { flexDirection: 'row', gap: 4 },
-  actionBtn: { padding: 4 },
-  amountsRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginBottom: 10 },
-  currentAmount: { color: '#00D4A1', fontSize: 24, fontWeight: '800' },
-  targetAmount: { color: '#555', fontSize: 14 },
-  progressTrack: { height: 8, backgroundColor: '#2A2A2A', borderRadius: 4, overflow: 'hidden', marginBottom: 8 },
-  progressBar: { height: 8, borderRadius: 4 },
-  goalFooter: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  pctText: { color: '#888', fontSize: 12, fontWeight: '600' },
-  dateText: { color: '#555', fontSize: 12 },
-  remainingText: { color: '#555', fontSize: 13, marginBottom: 14 },
-  quickAdd: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
-  quickAddLabel: { color: '#555', fontSize: 12 },
-  quickAddBtn: { backgroundColor: '#2A2A2A', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
-  quickAddBtnText: { color: '#00D4A1', fontSize: 13, fontWeight: '700' },
+    goalCard: { backgroundColor: th.card, borderRadius: 16, padding: 18, marginBottom: 14 },
+    goalCardDone: { opacity: 0.6 },
+    goalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
+    goalTitle: { color: th.text, fontSize: 17, fontWeight: '700', flex: 1 },
+    goalActions: { flexDirection: 'row', gap: 4 },
+    actionBtn: { padding: 4 },
+    amountsRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginBottom: 10 },
+    currentAmount: { color: th.accent, fontSize: 24, fontWeight: '800' },
+    targetAmount: { color: th.textMuted, fontSize: 14 },
+    progressTrack: { height: 8, backgroundColor: th.border, borderRadius: 4, overflow: 'hidden', marginBottom: 8 },
+    progressBar: { height: 8, borderRadius: 4 },
+    goalFooter: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+    pctText: { color: '#888', fontSize: 12, fontWeight: '600' },
+    dateText: { color: th.textMuted, fontSize: 12 },
+    remainingText: { color: th.textMuted, fontSize: 13, marginBottom: 14 },
+    quickAdd: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
+    quickAddLabel: { color: th.textMuted, fontSize: 12 },
+    quickAddBtn: { backgroundColor: th.border, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 },
+    quickAddBtnText: { color: th.accent, fontSize: 13, fontWeight: '700' },
 
-  modalOverlay: { flex: 1, justifyContent: 'flex-end' },
-  modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
-  modalSheet: { backgroundColor: '#1A1A1A', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, gap: 10 },
-  modalHandle: { width: 40, height: 4, backgroundColor: '#333', borderRadius: 2, alignSelf: 'center', marginBottom: 8 },
-  modalTitle: { color: '#F5F5F5', fontSize: 18, fontWeight: '700' },
-  emojiBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center', borderRadius: 10, backgroundColor: '#2A2A2A' },
-  emojiBtnActive: { backgroundColor: '#00D4A130', borderWidth: 2, borderColor: '#00D4A1' },
-  modalInput: { backgroundColor: '#111', borderRadius: 12, padding: 14, color: '#F5F5F5', fontSize: 15, borderWidth: 1, borderColor: '#2A2A2A' },
-  saveBtn: { backgroundColor: '#00D4A1', borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 4 },
-  saveBtnText: { color: '#0D0D0D', fontSize: 16, fontWeight: '700' },
-  cancelBtn: { padding: 12, alignItems: 'center' },
-  cancelBtnText: { color: '#555', fontSize: 14 },
-});
+    modalOverlay: { flex: 1, justifyContent: 'flex-end' },
+    modalBackdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.6)' },
+    modalSheet: { backgroundColor: th.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, gap: 10 },
+    modalHandle: { width: 40, height: 4, backgroundColor: th.border, borderRadius: 2, alignSelf: 'center', marginBottom: 8 },
+    modalTitle: { color: th.text, fontSize: 18, fontWeight: '700' },
+    emojiBtn: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center', borderRadius: 10, backgroundColor: th.border },
+    emojiBtnActive: { backgroundColor: th.accent + '30', borderWidth: 2, borderColor: th.accent },
+    modalInput: { backgroundColor: th.bg, borderRadius: 12, padding: 14, color: th.text, fontSize: 15, borderWidth: 1, borderColor: th.border },
+    saveBtn: { backgroundColor: th.accent, borderRadius: 12, padding: 16, alignItems: 'center', marginTop: 4 },
+    saveBtnText: { color: th.bg, fontSize: 16, fontWeight: '700' },
+    cancelBtn: { padding: 12, alignItems: 'center' },
+    cancelBtnText: { color: th.textMuted, fontSize: 14 },
+  });
+}

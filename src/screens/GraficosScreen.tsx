@@ -9,6 +9,7 @@ import { expenseService } from '../services/api';
 import { useCategories } from '../contexts/CategoryContext';
 import { useMonth } from '../contexts/MonthContext';
 import { Expense } from '../types/expense';
+import { useTheme, AppTheme } from '../contexts/ThemeContext';
 
 const MONTHS_PT = [
   'Jan','Fev','Mar','Abr','Mai','Jun',
@@ -26,6 +27,7 @@ const formatBRL = (v: number) =>
 export default function GraficosScreen() {
   const { categories } = useCategories();
   const { selectedMonth, selectedYear, goToPrev, goToNext } = useMonth();
+  const { theme } = useTheme();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -86,8 +88,10 @@ export default function GraficosScreen() {
     };
   });
 
+  const styles = makeStyles(theme);
+
   if (loading) {
-    return <View style={styles.centered}><ActivityIndicator size="large" color="#00D4A1" /></View>;
+    return <View style={styles.centered}><ActivityIndicator size="large" color={theme.accent} /></View>;
   }
 
   return (
@@ -151,15 +155,15 @@ export default function GraficosScreen() {
         <View style={styles.resumoRow}>
           <View style={styles.resumoItem}>
             <Text style={styles.resumoLabel}>Receitas</Text>
-            <Text style={[styles.resumoValue, { color: '#00D4A1' }]}>{formatBRL(totalReceitas)}</Text>
+            <Text style={[styles.resumoValue, { color: theme.accent }]}>{formatBRL(totalReceitas)}</Text>
           </View>
           <View style={styles.resumoItem}>
             <Text style={styles.resumoLabel}>Despesas</Text>
-            <Text style={[styles.resumoValue, { color: '#FF6B6B' }]}>{formatBRL(totalDespesas)}</Text>
+            <Text style={[styles.resumoValue, { color: theme.danger }]}>{formatBRL(totalDespesas)}</Text>
           </View>
           <View style={styles.resumoItem}>
             <Text style={styles.resumoLabel}>Saldo</Text>
-            <Text style={[styles.resumoValue, { color: (totalReceitas - totalDespesas) >= 0 ? '#00D4A1' : '#FF6B6B' }]}>
+            <Text style={[styles.resumoValue, { color: (totalReceitas - totalDespesas) >= 0 ? theme.accent : theme.danger }]}>
               {formatBRL(totalReceitas - totalDespesas)}
             </Text>
           </View>
@@ -173,24 +177,24 @@ export default function GraficosScreen() {
           data={lineData}
           width={280}
           height={160}
-          color="#00D4A1"
+          color={theme.accent}
           thickness={2}
-          dataPointsColor="#00D4A1"
+          dataPointsColor={theme.accent}
           dataPointsRadius={4}
-          startFillColor="#00D4A1"
+          startFillColor={theme.accent}
           startOpacity={0.2}
           endOpacity={0}
           areaChart
           curved
           hideYAxisText
-          xAxisColor="#2A2A2A"
-          yAxisColor="#2A2A2A"
-          rulesColor="#1A1A1A"
-          xAxisLabelTextStyle={{ color: '#555', fontSize: 10 }}
+          xAxisColor={theme.border}
+          yAxisColor={theme.border}
+          rulesColor={theme.card}
+          xAxisLabelTextStyle={{ color: theme.textMuted, fontSize: 10 }}
           noOfSections={4}
           spacing={46}
           initialSpacing={10}
-          backgroundColor="#111"
+          backgroundColor={theme.bg}
         />
       </View>
 
@@ -198,38 +202,40 @@ export default function GraficosScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0D0D0D' },
-  content: { padding: 16, paddingBottom: 60 },
-  centered: { flex: 1, backgroundColor: '#0D0D0D', justifyContent: 'center', alignItems: 'center' },
+function makeStyles(th: AppTheme) {
+  return StyleSheet.create({
+    container: { flex: 1, backgroundColor: th.bg },
+    content: { padding: 16, paddingBottom: 60 },
+    centered: { flex: 1, backgroundColor: th.bg, justifyContent: 'center', alignItems: 'center' },
 
-  monthSelector: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
-  monthArrow: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: '#1A1A1A', borderRadius: 10 },
-  disabled: { opacity: 0.3 },
-  monthArrowText: { color: '#00D4A1', fontSize: 24, lineHeight: 28, fontWeight: '300' },
-  disabledText: { color: '#555' },
-  monthLabel: { color: '#F5F5F5', fontSize: 17, fontWeight: '700' },
+    monthSelector: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 },
+    monthArrow: { width: 40, height: 40, justifyContent: 'center', alignItems: 'center', backgroundColor: th.card, borderRadius: 10 },
+    disabled: { opacity: 0.3 },
+    monthArrowText: { color: th.accent, fontSize: 24, lineHeight: 28, fontWeight: '300' },
+    disabledText: { color: th.textMuted },
+    monthLabel: { color: th.text, fontSize: 17, fontWeight: '700' },
 
-  card: { backgroundColor: '#1A1A1A', borderRadius: 16, padding: 20, marginBottom: 16 },
-  cardTitle: { color: '#666', fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 16 },
+    card: { backgroundColor: th.card, borderRadius: 16, padding: 20, marginBottom: 16 },
+    cardTitle: { color: th.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 16 },
 
-  pieWrapper: { alignItems: 'center', marginBottom: 20 },
-  pieCenter: { alignItems: 'center' },
-  pieCenterLabel: { color: '#666', fontSize: 11, fontWeight: '600', textTransform: 'uppercase' },
-  pieCenterAmount: { color: '#F5F5F5', fontSize: 15, fontWeight: '700' },
+    pieWrapper: { alignItems: 'center', marginBottom: 20 },
+    pieCenter: { alignItems: 'center' },
+    pieCenterLabel: { color: th.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase' },
+    pieCenterAmount: { color: th.text, fontSize: 15, fontWeight: '700' },
 
-  legend: { gap: 10 },
-  legendRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendIcon: { fontSize: 16 },
-  legendLabel: { flex: 1, color: '#F5F5F5', fontSize: 14, textTransform: 'capitalize' },
-  legendValue: { color: '#F5F5F5', fontSize: 14, fontWeight: '600' },
-  legendPct: { color: '#555', fontSize: 12, width: 36, textAlign: 'right' },
+    legend: { gap: 10 },
+    legendRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    legendDot: { width: 10, height: 10, borderRadius: 5 },
+    legendIcon: { fontSize: 16 },
+    legendLabel: { flex: 1, color: th.text, fontSize: 14, textTransform: 'capitalize' },
+    legendValue: { color: th.text, fontSize: 14, fontWeight: '600' },
+    legendPct: { color: th.textMuted, fontSize: 12, width: 36, textAlign: 'right' },
 
-  resumoRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  resumoItem: { alignItems: 'center', flex: 1 },
-  resumoLabel: { color: '#666', fontSize: 11, fontWeight: '600', textTransform: 'uppercase', marginBottom: 4 },
-  resumoValue: { fontSize: 16, fontWeight: '700' },
+    resumoRow: { flexDirection: 'row', justifyContent: 'space-between' },
+    resumoItem: { alignItems: 'center', flex: 1 },
+    resumoLabel: { color: th.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'uppercase', marginBottom: 4 },
+    resumoValue: { fontSize: 16, fontWeight: '700' },
 
-  emptyText: { color: '#555', fontSize: 14, textAlign: 'center', paddingVertical: 20 },
-});
+    emptyText: { color: th.textMuted, fontSize: 14, textAlign: 'center', paddingVertical: 20 },
+  });
+}

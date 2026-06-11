@@ -3,6 +3,7 @@ import {
   View, TextInput, TouchableOpacity, Text, ScrollView, StyleSheet,
 } from 'react-native';
 import { useCategories } from '../contexts/CategoryContext';
+import { useTheme, AppTheme } from '../contexts/ThemeContext';
 
 export type SortOption = 'date_desc' | 'date_asc' | 'amount_desc' | 'amount_asc';
 
@@ -28,6 +29,8 @@ export default function SearchBar({
   sortBy, onSortChange,
 }: Props) {
   const { categories } = useCategories();
+  const { theme } = useTheme();
+  const styles = makeStyles(theme);
 
   const sorts: SortOption[] = ['date_desc', 'date_asc', 'amount_desc', 'amount_asc'];
 
@@ -41,7 +44,7 @@ export default function SearchBar({
           value={query}
           onChangeText={onQueryChange}
           placeholder="Buscar por descrição..."
-          placeholderTextColor="#444"
+          placeholderTextColor={theme.textMuted}
           returnKeyType="search"
           clearButtonMode="while-editing"
         />
@@ -92,25 +95,25 @@ export default function SearchBar({
   );
 }
 
-const styles = StyleSheet.create({
-  wrapper: { backgroundColor: '#0D0D0D', paddingTop: 12 },
+function makeStyles(th: AppTheme) { return StyleSheet.create({
+  wrapper: { backgroundColor: th.bg, paddingTop: 12 },
 
-  inputRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, backgroundColor: '#1A1A1A', borderRadius: 12, paddingHorizontal: 12, marginBottom: 10, borderWidth: 1, borderColor: '#2A2A2A' },
+  inputRow: { flexDirection: 'row', alignItems: 'center', marginHorizontal: 16, backgroundColor: th.card, borderRadius: 12, paddingHorizontal: 12, marginBottom: 10, borderWidth: 1, borderColor: th.border },
   searchIcon: { fontSize: 16, marginRight: 8 },
-  input: { flex: 1, color: '#F5F5F5', fontSize: 15, paddingVertical: 12 },
+  input: { flex: 1, color: th.text, fontSize: 15, paddingVertical: 12 },
   clearBtn: { padding: 4 },
-  clearText: { color: '#555', fontSize: 14 },
+  clearText: { color: th.textMuted, fontSize: 14 },
 
   chipsRow: { marginBottom: 8 },
-  chip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: '#1A1A1A', borderWidth: 1, borderColor: '#2A2A2A', gap: 4 },
-  chipActive: { backgroundColor: '#00D4A120', borderColor: '#00D4A1' },
+  chip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: th.card, borderWidth: 1, borderColor: th.border, gap: 4 },
+  chipActive: { backgroundColor: th.accent + '20', borderColor: th.accent },
   chipIcon: { fontSize: 14 },
-  chipText: { color: '#666', fontSize: 13, fontWeight: '500', textTransform: 'capitalize' },
-  chipTextActive: { color: '#00D4A1', fontWeight: '700' },
+  chipText: { color: th.textMuted, fontSize: 13, fontWeight: '500', textTransform: 'capitalize' },
+  chipTextActive: { color: th.accent, fontWeight: '700' },
 
   sortRow: { marginBottom: 8 },
-  sortChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16, backgroundColor: '#1A1A1A', borderWidth: 1, borderColor: '#2A2A2A' },
-  sortChipActive: { backgroundColor: '#2A2A2A', borderColor: '#555' },
-  sortChipText: { color: '#555', fontSize: 12, fontWeight: '500' },
-  sortChipTextActive: { color: '#F5F5F5', fontWeight: '600' },
-});
+  sortChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 16, backgroundColor: th.card, borderWidth: 1, borderColor: th.border },
+  sortChipActive: { backgroundColor: th.border, borderColor: th.textMuted },
+  sortChipText: { color: th.textMuted, fontSize: 12, fontWeight: '500' },
+  sortChipTextActive: { color: th.text, fontWeight: '600' },
+}); }
