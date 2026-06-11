@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,17 +11,29 @@ import {
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
+import { AppStackParamList } from '../types/navigation';
 import { Expense } from '../types/expense';
 import { expenseService } from '../services/api';
 import ExpenseCard from '../components/ExpenseCard';
+import { useAuth } from '../contexts/AuthContext';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
+  const { signOut } = useAuth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity onPress={signOut} style={{ marginRight: 4 }}>
+          <Text style={{ color: '#00D4A1', fontSize: 15, fontWeight: '600' }}>Sair</Text>
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, signOut]);
 
   const fetchExpenses = async () => {
     try {

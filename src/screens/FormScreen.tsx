@@ -12,11 +12,11 @@ import {
   Platform,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../types/navigation';
+import { AppStackParamList } from '../types/navigation';
 import { Category } from '../types/expense';
 import { expenseService } from '../services/api';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'Form'>;
+type Props = NativeStackScreenProps<AppStackParamList, 'Form'>;
 
 const CATEGORIES: { value: Category; label: string; icon: string }[] = [
   { value: 'alimentação', label: 'Alimentação', icon: '🍔' },

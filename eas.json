@@ -6,11 +6,21 @@
     "preview": {
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://expense-tracker-api-xhgh.onrender.com/api",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://sytulbxmbiqkypseafxe.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5dHVsYnhtYmlxa3lwc2VhZnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMjk5NzEsImV4cCI6MjA5NjcwNTk3MX0.CvchePhydcpkcUToqvXFxMa0yGLzgVOE8EflZhvfjvA"
       }
     },
     "production": {
       "android": {
         "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://expense-tracker-api-xhgh.onrender.com/api",
+        "EXPO_PUBLIC_SUPABASE_URL": "https://sytulbxmbiqkypseafxe.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5dHVsYnhtYmlxa3lwc2VhZnhlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExMjk5NzEsImV4cCI6MjA5NjcwNTk3MX0.CvchePhydcpkcUToqvXFxMa0yGLzgVOE8EflZhvfjvA"
       }
     }
   }
