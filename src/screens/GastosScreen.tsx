@@ -9,6 +9,7 @@ import { AppStackParamList } from '../types/navigation';
 import { Expense } from '../types/expense';
 import { expenseService } from '../services/api';
 import ExpenseCard from '../components/ExpenseCard';
+import SearchBar, { SortOption } from '../components/SearchBar';
 import { useMonth } from '../contexts/MonthContext';
 
 const MONTHS_PT = [
@@ -16,12 +17,40 @@ const MONTHS_PT = [
   'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro',
 ];
 
+function applyFilters(
+  expenses: Expense[],
+  query: string,
+  category: string | null,
+  sort: SortOption
+): Expense[] {
+  let result = expenses;
+
+  if (query.trim()) {
+    const q = query.toLowerCase();
+    result = result.filter(e => e.title.toLowerCase().includes(q));
+  }
+
+  if (category) {
+    result = result.filter(e => e.category === category);
+  }
+
+  return [...result].sort((a, b) => {
+    if (sort === 'date_desc') return new Date(b.date).getTime() - new Date(a.date).getTime();
+    if (sort === 'date_asc')  return new Date(a.date).getTime() - new Date(b.date).getTime();
+    if (sort === 'amount_desc') return Number(b.amount) - Number(a.amount);
+    return Number(a.amount) - Number(b.amount);
+  });
+}
+
 export default function GastosScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const { selectedMonth, selectedYear, goToPrev, goToNext } = useMonth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [query, setQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<SortOption>('date_desc');
 
   const now = new Date();
   const isCurrentMonth = selectedMonth === now.getMonth() && selectedYear === now.getFullYear();
@@ -66,22 +95,19 @@ export default function GastosScreen() {
     return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
   });
 
+  const filtered = applyFilters(monthExpenses, query, selectedCategory, sortBy);
   const total = monthExpenses.reduce((acc, e) => acc + Number(e.amount), 0);
   const formatBRL = (v: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
   if (loading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#00D4A1" />
-      </View>
-    );
+    return <View style={styles.centered}><ActivityIndicator size="large" color="#00D4A1" /></View>;
   }
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={monthExpenses}
+        data={filtered}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <ExpenseCard
@@ -90,7 +116,7 @@ export default function GastosScreen() {
             onDelete={() => handleDelete(item.id)}
           />
         )}
-        contentContainerStyle={monthExpenses.length === 0 ? styles.emptyContainer : styles.list}
+        contentContainerStyle={filtered.length === 0 ? styles.emptyContainer : styles.list}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchExpenses(); }} tintColor="#00D4A1" />
         }
@@ -108,14 +134,21 @@ export default function GastosScreen() {
             <View style={styles.totalCard}>
               <Text style={styles.totalLabel}>Total despesas</Text>
               <Text style={styles.totalAmount}>{formatBRL(total)}</Text>
-              <Text style={styles.totalCount}>{monthExpenses.length} registro{monthExpenses.length !== 1 ? 's' : ''}</Text>
+              <Text style={styles.totalCount}>{filtered.length}{filtered.length !== monthExpenses.length ? `/${monthExpenses.length}` : ''} registro{monthExpenses.length !== 1 ? 's' : ''}</Text>
             </View>
+            <SearchBar
+              query={query} onQueryChange={setQuery}
+              selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory}
+              sortBy={sortBy} onSortChange={setSortBy}
+            />
           </>
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>💸</Text>
-            <Text style={styles.emptyTitle}>Nenhuma despesa em {MONTHS_PT[selectedMonth]}</Text>
+            <Text style={styles.emptyIcon}>{query || selectedCategory ? '🔍' : '💸'}</Text>
+            <Text style={styles.emptyTitle}>
+              {query || selectedCategory ? 'Nenhum resultado' : `Nenhuma despesa em ${MONTHS_PT[selectedMonth]}`}
+            </Text>
           </View>
         }
       />
@@ -140,7 +173,7 @@ const styles = StyleSheet.create({
   monthArrowText: { color: '#00D4A1', fontSize: 24, lineHeight: 28, fontWeight: '300' },
   disabledText: { color: '#555' },
   monthLabel: { color: '#F5F5F5', fontSize: 17, fontWeight: '700' },
-  totalCard: { marginHorizontal: 16, marginBottom: 20, padding: 20, backgroundColor: '#1A1A1A', borderRadius: 16, borderLeftWidth: 3, borderLeftColor: '#FF6B6B' },
+  totalCard: { marginHorizontal: 16, marginBottom: 12, padding: 20, backgroundColor: '#1A1A1A', borderRadius: 16, borderLeftWidth: 3, borderLeftColor: '#FF6B6B' },
   totalLabel: { color: '#666', fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
   totalAmount: { color: '#FF6B6B', fontSize: 28, fontWeight: '700', marginBottom: 4 },
   totalCount: { color: '#555', fontSize: 12 },

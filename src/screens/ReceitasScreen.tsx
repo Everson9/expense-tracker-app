@@ -9,6 +9,7 @@ import { AppStackParamList } from '../types/navigation';
 import { Expense } from '../types/expense';
 import { expenseService } from '../services/api';
 import ExpenseCard from '../components/ExpenseCard';
+import SearchBar, { SortOption } from '../components/SearchBar';
 import { useMonth } from '../contexts/MonthContext';
 
 const MONTHS_PT = [
@@ -16,12 +17,27 @@ const MONTHS_PT = [
   'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro',
 ];
 
+function applyFilters(expenses: Expense[], query: string, sort: SortOption): Expense[] {
+  let result = query.trim()
+    ? expenses.filter(e => e.title.toLowerCase().includes(query.toLowerCase()))
+    : expenses;
+
+  return [...result].sort((a, b) => {
+    if (sort === 'date_desc') return new Date(b.date).getTime() - new Date(a.date).getTime();
+    if (sort === 'date_asc')  return new Date(a.date).getTime() - new Date(b.date).getTime();
+    if (sort === 'amount_desc') return Number(b.amount) - Number(a.amount);
+    return Number(a.amount) - Number(b.amount);
+  });
+}
+
 export default function ReceitasScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
   const { selectedMonth, selectedYear, goToPrev, goToNext } = useMonth();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState<SortOption>('date_desc');
 
   const now = new Date();
   const isCurrentMonth = selectedMonth === now.getMonth() && selectedYear === now.getFullYear();
@@ -66,22 +82,19 @@ export default function ReceitasScreen() {
     return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
   });
 
+  const filtered = applyFilters(monthReceitas, query, sortBy);
   const total = monthReceitas.reduce((acc, e) => acc + Number(e.amount), 0);
   const formatBRL = (v: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
   if (loading) {
-    return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#00D4A1" />
-      </View>
-    );
+    return <View style={styles.centered}><ActivityIndicator size="large" color="#00D4A1" /></View>;
   }
 
   return (
     <View style={styles.container}>
       <FlatList
-        data={monthReceitas}
+        data={filtered}
         keyExtractor={item => item.id}
         renderItem={({ item }) => (
           <ExpenseCard
@@ -90,7 +103,7 @@ export default function ReceitasScreen() {
             onDelete={() => handleDelete(item.id)}
           />
         )}
-        contentContainerStyle={monthReceitas.length === 0 ? styles.emptyContainer : styles.list}
+        contentContainerStyle={filtered.length === 0 ? styles.emptyContainer : styles.list}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchExpenses(); }} tintColor="#00D4A1" />
         }
@@ -108,14 +121,21 @@ export default function ReceitasScreen() {
             <View style={styles.totalCard}>
               <Text style={styles.totalLabel}>Total receitas</Text>
               <Text style={styles.totalAmount}>{formatBRL(total)}</Text>
-              <Text style={styles.totalCount}>{monthReceitas.length} registro{monthReceitas.length !== 1 ? 's' : ''}</Text>
+              <Text style={styles.totalCount}>{filtered.length}{filtered.length !== monthReceitas.length ? `/${monthReceitas.length}` : ''} registro{monthReceitas.length !== 1 ? 's' : ''}</Text>
             </View>
+            <SearchBar
+              query={query} onQueryChange={setQuery}
+              selectedCategory={null} onCategoryChange={() => {}}
+              sortBy={sortBy} onSortChange={setSortBy}
+            />
           </>
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>💰</Text>
-            <Text style={styles.emptyTitle}>Nenhuma receita em {MONTHS_PT[selectedMonth]}</Text>
+            <Text style={styles.emptyIcon}>{query ? '🔍' : '💰'}</Text>
+            <Text style={styles.emptyTitle}>
+              {query ? 'Nenhum resultado' : `Nenhuma receita em ${MONTHS_PT[selectedMonth]}`}
+            </Text>
           </View>
         }
       />
@@ -140,7 +160,7 @@ const styles = StyleSheet.create({
   monthArrowText: { color: '#00D4A1', fontSize: 24, lineHeight: 28, fontWeight: '300' },
   disabledText: { color: '#555' },
   monthLabel: { color: '#F5F5F5', fontSize: 17, fontWeight: '700' },
-  totalCard: { marginHorizontal: 16, marginBottom: 20, padding: 20, backgroundColor: '#1A1A1A', borderRadius: 16, borderLeftWidth: 3, borderLeftColor: '#00D4A1' },
+  totalCard: { marginHorizontal: 16, marginBottom: 12, padding: 20, backgroundColor: '#1A1A1A', borderRadius: 16, borderLeftWidth: 3, borderLeftColor: '#00D4A1' },
   totalLabel: { color: '#666', fontSize: 11, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 4 },
   totalAmount: { color: '#00D4A1', fontSize: 28, fontWeight: '700', marginBottom: 4 },
   totalCount: { color: '#555', fontSize: 12 },
