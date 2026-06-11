@@ -14,6 +14,7 @@ interface Props {
   onCategoryChange: (v: string | null) => void;
   sortBy: SortOption;
   onSortChange: (v: SortOption) => void;
+  showCategories?: boolean;
 }
 
 const SORT_LABELS: Record<SortOption, string> = {
@@ -27,6 +28,7 @@ export default function SearchBar({
   query, onQueryChange,
   selectedCategory, onCategoryChange,
   sortBy, onSortChange,
+  showCategories = true,
 }: Props) {
   const { categories } = useCategories();
   const { theme } = useTheme();
@@ -56,7 +58,7 @@ export default function SearchBar({
       </View>
 
       {/* Category filter chips */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow} contentContainerStyle={{ gap: 6, paddingHorizontal: 16 }}>
+      {showCategories && <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsRow} contentContainerStyle={{ gap: 6, paddingHorizontal: 16 }}>
         <TouchableOpacity
           style={[styles.chip, selectedCategory === null && styles.chipActive]}
           onPress={() => onCategoryChange(null)}
@@ -75,7 +77,7 @@ export default function SearchBar({
             </Text>
           </TouchableOpacity>
         ))}
-      </ScrollView>
+      </ScrollView>}
 
       {/* Sort chips */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.sortRow} contentContainerStyle={{ gap: 6, paddingHorizontal: 16 }}>

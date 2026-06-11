@@ -131,6 +131,7 @@ export default function ReceitasScreen() {
               query={query} onQueryChange={setQuery}
               selectedCategory={null} onCategoryChange={() => {}}
               sortBy={sortBy} onSortChange={setSortBy}
+              showCategories={false}
             />
           </>
         }
