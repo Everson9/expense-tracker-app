@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import * as Updates from 'expo-updates';
 import { AuthProvider } from './src/contexts/AuthContext';
@@ -34,6 +35,7 @@ export default function App() {
   }, []);
 
   return (
+    <SafeAreaProvider>
     <ThemeProvider>
     <AuthProvider>
       <CategoryProvider>
@@ -46,5 +48,6 @@ export default function App() {
       </CategoryProvider>
     </AuthProvider>
     </ThemeProvider>
+    </SafeAreaProvider>
   );
 }
