@@ -1,12 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, TouchableOpacity, StyleSheet,
-  Alert, ActivityIndicator, Modal, TextInput, FlatList,
+  Alert, ActivityIndicator, Modal, TextInput, FlatList, Switch,
 } from 'react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { useCategories } from '../contexts/CategoryContext';
 import { useTheme, THEMES } from '../contexts/ThemeContext';
 import { categoryService } from '../services/api';
+import { scheduleDailyReminder, cancelDailyReminder, getScheduledReminder } from '../services/notifications';
+import { exportMonthCsv } from '../services/exportCsv';
+import { expenseService } from '../services/api';
+import { useMonth } from '../contexts/MonthContext';
 
 const EMOJI_OPTIONS = [
   '🍔','🍕','🍣','🥗','☕','🍺','🛒',
@@ -21,6 +25,50 @@ export default function ProfileScreen() {
   const { user, signOut } = useAuth();
   const { categories, reload } = useCategories();
   const { theme, setThemeById } = useTheme();
+  const { selectedMonth, selectedYear } = useMonth();
+  const [notifEnabled, setNotifEnabled] = useState(false);
+  const [exporting, setExporting] = useState(false);
+
+  const MONTHS_PT = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const all = await expenseService.getAll();
+      const monthExpenses = all.filter(e => {
+        const d = new Date(e.date + 'T12:00:00');
+        return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+      });
+      if (monthExpenses.length === 0) {
+        Alert.alert('Sem dados', `Nenhum registro em ${MONTHS_PT[selectedMonth]} ${selectedYear}.`);
+        return;
+      }
+      await exportMonthCsv(monthExpenses, selectedMonth, selectedYear);
+    } catch {
+      Alert.alert('Erro', 'Não foi possível exportar.');
+    } finally {
+      setExporting(false);
+    }
+  };
+
+  useEffect(() => {
+    getScheduledReminder().then(r => setNotifEnabled(!!r));
+  }, []);
+
+  const toggleNotification = async () => {
+    if (notifEnabled) {
+      await cancelDailyReminder();
+      setNotifEnabled(false);
+    } else {
+      const id = await scheduleDailyReminder(20, 0);
+      if (id) {
+        setNotifEnabled(true);
+        Alert.alert('✅ Lembrete ativado', 'Você receberá um lembrete todos os dias às 20h.');
+      } else {
+        Alert.alert('Permissão negada', 'Permita notificações nas configurações do celular.');
+      }
+    }
+  };
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -129,6 +177,35 @@ export default function ProfileScreen() {
         ))}
       </View>
 
+      {/* Export */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Exportar</Text>
+        <TouchableOpacity
+          style={[styles.exportBtn, exporting && { opacity: 0.6 }]}
+          onPress={handleExport}
+          disabled={exporting}
+        >
+          {exporting
+            ? <ActivityIndicator color="#0D0D0D" size="small" />
+            : <Text style={styles.exportBtnText}>📥 Exportar {MONTHS_PT[selectedMonth]} como CSV</Text>
+          }
+        </TouchableOpacity>
+      </View>
+
+      {/* Notifications */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Notificações</Text>
+        <TouchableOpacity style={styles.notifRow} onPress={toggleNotification} activeOpacity={0.75}>
+          <View>
+            <Text style={styles.notifLabel}>🔔 Lembrete diário</Text>
+            <Text style={styles.notifHint}>Todos os dias às 20h</Text>
+          </View>
+          <View style={[styles.toggle, notifEnabled && styles.toggleActive]}>
+            <View style={[styles.toggleThumb, notifEnabled && styles.toggleThumbActive]} />
+          </View>
+        </TouchableOpacity>
+      </View>
+
       {/* Theme picker */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Tema</Text>
@@ -234,6 +311,17 @@ const styles = StyleSheet.create({
   actionBtn: { padding: 6 },
   actionEdit: { fontSize: 16 },
   actionDelete: { fontSize: 16 },
+
+  exportBtn: { backgroundColor: '#00D4A1', borderRadius: 12, padding: 16, alignItems: 'center' },
+  exportBtnText: { color: '#0D0D0D', fontSize: 15, fontWeight: '700' },
+
+  notifRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#1A1A1A', borderRadius: 12, padding: 16, borderWidth: 1, borderColor: '#2A2A2A' },
+  notifLabel: { color: '#F5F5F5', fontSize: 15, fontWeight: '600', marginBottom: 2 },
+  notifHint: { color: '#555', fontSize: 12 },
+  toggle: { width: 44, height: 24, borderRadius: 12, backgroundColor: '#2A2A2A', justifyContent: 'center', paddingHorizontal: 2 },
+  toggleActive: { backgroundColor: '#00D4A1' },
+  toggleThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: '#555' },
+  toggleThumbActive: { backgroundColor: '#0D0D0D', alignSelf: 'flex-end' },
 
   themeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   themeBtn: { alignItems: 'center', borderRadius: 12, padding: 8, borderWidth: 1, borderColor: '#2A2A2A', backgroundColor: '#1A1A1A', width: '30%' },

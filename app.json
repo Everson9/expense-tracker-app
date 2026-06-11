@@ -35,7 +35,15 @@
     },
     "plugins": [
       "expo-asset",
-      "expo-updates"
+      "expo-updates",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/icon.png",
+          "color": "#00D4A1",
+          "sounds": []
+        }
+      ]
     ],
     "extra": {
       "eas": {
