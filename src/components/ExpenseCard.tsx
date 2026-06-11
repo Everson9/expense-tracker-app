@@ -49,6 +49,11 @@ export default function ExpenseCard({ expense, onEdit, onDelete }: Props) {
         <View style={styles.titleRow}>
           <Text style={styles.title} numberOfLines={1}>{expense.title}</Text>
           {expense.recorrente && <Text style={styles.recorrenteBadge}>🔁</Text>}
+          {expense.parcela_atual && expense.parcelas && (
+            <View style={styles.parcelaBadge}>
+              <Text style={styles.parcelaBadgeText}>{expense.parcela_atual}/{expense.parcelas}</Text>
+            </View>
+          )}
         </View>
         <View style={styles.metaRow}>
           {isReceita ? (
@@ -126,6 +131,17 @@ const styles = StyleSheet.create({
   },
   recorrenteBadge: {
     fontSize: 12,
+  },
+  parcelaBadge: {
+    backgroundColor: '#2A2A2A',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  parcelaBadgeText: {
+    color: '#888',
+    fontSize: 11,
+    fontWeight: '600',
   },
   metaRow: {
     flexDirection: 'row',

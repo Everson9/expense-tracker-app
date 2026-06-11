@@ -16,6 +16,9 @@ export interface Expense {
   type: TransactionType;
   recorrente: boolean;
   recorrente_id?: string | null;
+  parcelas?: number | null;
+  parcela_atual?: number | null;
+  parcela_grupo_id?: string | null;
   date: string;
   description?: string;
   created_at?: string;

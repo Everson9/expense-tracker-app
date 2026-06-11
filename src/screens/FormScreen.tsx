@@ -47,9 +47,12 @@ export default function FormScreen({ navigation, route }: Props) {
   const [date,        setDate]        = useState(editing?.date ?? todayISO);
   const [description, setDescription] = useState(editing?.description ?? '');
   const [recorrente,  setRecorrente]  = useState(editing?.recorrente ?? false);
+  const [parcelas,    setParcelas]    = useState(editing?.parcelas ? String(editing.parcelas) : '1');
   const [loading,     setLoading]     = useState(false);
 
   const isTemplate = !!editing?.recorrente && !editing?.recorrente_id;
+  const isParcela  = !!editing?.parcela_grupo_id;
+  const numParcelas = parseInt(parcelas, 10) || 1;
 
   const handleSave = async () => {
     if (!title.trim()) {
@@ -65,21 +68,50 @@ export default function FormScreen({ navigation, route }: Props) {
 
     setLoading(true);
 
-    const payload = {
-      title:       title.trim(),
-      amount:      parsedAmount,
-      category,
-      type,
-      recorrente,
-      date,
-      description: description.trim() || undefined,
-    };
-
     try {
       if (editing) {
-        await expenseService.update(editing.id, payload);
+        await expenseService.update(editing.id, {
+          title: title.trim(),
+          amount: parsedAmount,
+          category,
+          type,
+          recorrente,
+          date,
+          description: description.trim() || undefined,
+        });
+      } else if (numParcelas > 1) {
+        const grupoId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        const valorParcela = Math.round((parsedAmount / numParcelas) * 100) / 100;
+        const [y, m, d] = date.split('-').map(Number);
+
+        await Promise.all(
+          Array.from({ length: numParcelas }, (_, i) => {
+            const parcelaDate = new Date(y, m - 1 + i, d);
+            const parcelaDateStr = `${parcelaDate.getFullYear()}-${String(parcelaDate.getMonth() + 1).padStart(2, '0')}-${String(parcelaDate.getDate()).padStart(2, '0')}`;
+            return expenseService.create({
+              title: `${title.trim()} (${i + 1}/${numParcelas})`,
+              amount: valorParcela,
+              category,
+              type,
+              recorrente: false,
+              parcelas: numParcelas,
+              parcela_atual: i + 1,
+              parcela_grupo_id: grupoId,
+              date: parcelaDateStr,
+              description: description.trim() || undefined,
+            });
+          })
+        );
       } else {
-        await expenseService.create(payload);
+        await expenseService.create({
+          title: title.trim(),
+          amount: parsedAmount,
+          category,
+          type,
+          recorrente,
+          date,
+          description: description.trim() || undefined,
+        });
       }
       navigation.goBack();
     } catch {
@@ -148,6 +180,30 @@ export default function FormScreen({ navigation, route }: Props) {
             keyboardType="decimal-pad"
           />
         </View>
+
+        {/* Parcelas — só para despesas novas ou sem grupo */}
+        {!isReceita && !isParcela && (
+          <View style={styles.field}>
+            <Text style={styles.label}>Parcelas</Text>
+            <View style={styles.parcelasRow}>
+              <TouchableOpacity
+                style={styles.parcelasBtn}
+                onPress={() => setParcelas(v => String(Math.max(1, (parseInt(v, 10) || 1) - 1)))}
+              >
+                <Text style={styles.parcelasBtnText}>−</Text>
+              </TouchableOpacity>
+              <Text style={styles.parcelasValue}>
+                {numParcelas === 1 ? 'À vista' : `${numParcelas}x de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(parseFloat(amount.replace(',', '.')) / numParcelas || 0)}`}
+              </Text>
+              <TouchableOpacity
+                style={styles.parcelasBtn}
+                onPress={() => setParcelas(v => String(Math.min(48, (parseInt(v, 10) || 1) + 1)))}
+              >
+                <Text style={styles.parcelasBtnText}>+</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
 
         {/* Data */}
         <View style={styles.field}>
@@ -363,6 +419,36 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
     letterSpacing: 0.3,
+  },
+
+  // Parcelas
+  parcelasRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#1A1A1A',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#252525',
+    overflow: 'hidden',
+  },
+  parcelasBtn: {
+    width: 48,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#252525',
+  },
+  parcelasBtnText: {
+    color: '#F5F5F5',
+    fontSize: 20,
+    fontWeight: '300',
+  },
+  parcelasValue: {
+    flex: 1,
+    color: '#F5F5F5',
+    fontSize: 15,
+    fontWeight: '600',
+    textAlign: 'center',
   },
 
   // Recorrente toggle
